@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Моделирование выбросов H2S (версия 1.12)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    header {
+      background-color: #2c3e50;
+      color: white;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-title {
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .search-container {
+      display: flex;
+      align-items: center;
+    }
+    .search-container input {
+      padding: 8px 12px;
+      border-radius: 4px;
+      border: none;
+      margin-right: 10px;
+      width: 200px;
+    }
+    .search-container button {
+      padding: 8px 15px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .search-container button:hover {
+      background-color: #2980b9;
+    }
+    .container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    .control-panel {
+      width: 320px;
+      background-color: #ecf0f1;
+      padding: 15px;
+      overflow-y: auto;
+      border-right: 1px solid #bdc3c7;
+    }
+    .panel-section {
+      background-color: white;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .panel-section h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: #2c3e50;
+      font-size: 16px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+      color: #34495e;
+    }
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #bdc3c7;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      width: 100%;
+      margin-top: 5px;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    button.danger {
+      background-color: #e74c3c;
+    }
+    button.danger:hover {
+      background-color: #c0392b;
+    }
+    .map-container {
+      flex: 1;
+      position: relative;
+    }
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+    .source-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .source-info {
+      font-size: 13px;
+    }
+    .source-actions button {
+      width: auto;
+      padding: 4px 8px;
+      font-size: 12px;
+      margin-left: 5px;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+      background-color: white;
+      margin: 15% auto;
+      padding: 20px;
+      border-radius: 5px;
+      width: 350px;
+      box-shadow: 0 3px 9px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .modal-title {
+      margin: 0;
+      font-size: 18px;
+    }
+    .close {
+      font-size: 24px;
+      cursor: pointer;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+    .modal-btn {
+      padding: 8px 15px;
+      margin-left: 10px;
+    }
+    .results-panel {
+      background-color: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+    .results-panel p {
+      margin: 5px 0;
+      font-size: 13px;
+    }
+    .heat-circle {
+      border-radius: 50%;
+      opacity: 0.6;
+    }
+  </style>
+  <script src="https://api-maps.yandex.ru/2.1/?apikey=f2206a66-2fdf-432e-b948-9b64ddffc204&lang=ru_RU"></script>
+</head>
+<body>
+  <header>
+    <div class="header-title">Моделирование выбросов H2S</div>
+    <div class="search-container">
+      <input type="text" id="city-search" placeholder="Введите город">
+      <button id="search-btn">Поиск</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="control-panel">
+      <div class="panel-section">
+        <h3>Параметры ветра</h3>
+        <div class="form-group">
+          <label for="wind-speed">Скорость ветра (м/с)</label>
+          <input type="number" id="wind-speed" value="2.4" min="0.1" step="0.1">
+        </div>
+        <div class="form-group">
+          <label for="wind-direction">Направление ветра</label>
+          <select id="wind-direction"></select>
+        </div>
+        <div class="form-group">
+          <label for="stability-class">Класс устойчивости</label>
+          <select id="stability-class">
+            <option value="A">A - Очень неустойчивый</option>
+            <option value="B">B - Неустойчивый</option>
+            <option value="C" selected>C - Слабо неустойчивый</option>
+            <option value="D">D - Нейтральный</option>
+            <option value="E">E - Слабо устойчивый</option>
+            <option value="F">F - Устойчивый</option>
+          </select>
+        </div>
+        <button id="update-btn">Обновить данные</button>
+      </div>
+
+      <div class="panel-section">
+        <h3>Источник выброса</h3>
+        <div class="form-group">
+          <label for="source-type">Тип источника</label>
+          <select id="source-type">
+            <option value="point">Точечный</option>
+            <option value="line">Линейный</option>
+            <option value="area">Площадной</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="source-height">Высота (м)</label>
+          <input type="number" id="source-height" value="40" min="1" step="1">
+        </div>
+        <div class="form-group">
+          <label for="emission-rate">Выброс H2S (г/с)</label>
+          <input type="number" id="emission-rate" value="3.7" min="0.001" step="0.001">
+        </div>
+        <button id="add-source-btn">Добавить источник</button>
+      </div>
+
+      <div class="panel-section">
+        <h3>Список источников</h3>
+        <div id="sources-list"></div>
+      </div>
+
+      <div class="panel-section results-panel">
+        <h3>Результаты расчёта</h3>
+        <div id="calculation-results"></div>
+      </div>
+    </div>
+
+    <div class="map-container">
+      <div id="map"></div>
+    </div>
+  </div>
+
+  <div id="confirm-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Подтверждение действия</h3>
+        <span class="close">&times;</span>
+      </div>
+      <p>Вы уверены, что хотите удалить этот источник?</p>
+      <div class="modal-footer">
+        <button class="modal-btn danger" id="cancel-delete">Отмена</button>
+        <button class="modal-btn" id="confirm-delete">Удалить</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+      // Конфигурация расчёта
+      const CONFIG = {
+        MAX_DISTANCE: 25000,       // 25 км от источника
+        MIN_CONCENTRATION: 1e-10,  // минимальная концентрация для отображения
+        PDK_H2S: 0.008,            // ПДК H2S (мг/м³)
+        GRID_STEP: 100             // шаг сетки, м
+      };
+
+      // Возможные направления ветра
+      const WIND_DIRECTIONS = {
+        0: 'Север',
+        45: 'Северо-восток',
+        90: 'Восток',
+        135: 'Юго-восток',
+        180: 'Юг',
+        225: 'Юго-запад',
+        270: 'Запад',
+        315: 'Северо-запад'
+      };
+
+      // Коэффициенты Паскуилла для классов устойчивости атмосферы
+      const PASQUILL_COEFFS = {
+        'A': { Iy: -1.104, Jy: 0.9878, Ky: -0.0076, Iz: 4.679, Jz: -1.7172, Kz: 0.2770 },
+        'B': { Iy: -1.634, Jy: 1.0350, Ky: -0.0096, Iz: -1.999, Jz: 0.8752, Kz: 0.0136 },
+        'C': { Iy: -2.054, Jy: 1.0231, Ky: -0.0076, Iz: -2.341, Jz: 0.9477, Kz: -0.0020 },
+        'D': { Iy: -2.555, Jy: 1.0423, Ky: -0.0087, Iz: -3.186, Jz: 1.1737, Kz: -0.0316 },
+        'E': { Iy: -2.754, Jy: 1.0106, Ky: -0.0064, Iz: -3.783, Jz: 1.3010, Kz: -0.0450 },
+        'F': { Iy: -3.143, Jy: 1.0148, Ky: -0.0070, Iz: -4.490, Jz: 1.4024, Kz: -0.0540 }
+      };
+
+      // Инициализация карты Яндекс
+      let map;
+      ymaps.ready(initMap);
+
+      function initMap() {
+        map = new ymaps.Map('map', {
+          center: [55.7558, 37.6173],
+          zoom: 13,
+          controls: ['zoomControl', 'typeSelector', 'fullscreenControl']
+        });
+
+        init();
+      }
+
+      // Состояние приложения
+      const state = {
+        sources: [],
+        heatObjects: [],
+        isPlacingSource: false,
+        sourceToDelete: null,
+        currentZoom: 13
+      };
+
+      // Ссылки на элементы DOM
+      const dom = {
+        windSpeed: document.getElementById('wind-speed'),
+        windDirection: document.getElementById('wind-direction'),
+        stabilityClass: document.getElementById('stability-class'),
+        sourceType: document.getElementById('source-type'),
+        sourceHeight: document.getElementById('source-height'),
+        emissionRate: document.getElementById('emission-rate'),
+        sourcesList: document.getElementById('sources-list'),
+        searchInput: document.getElementById('city-search'),
+        searchBtn: document.getElementById('search-btn'),
+        addSourceBtn: document.getElementById('add-source-btn'),
+        updateBtn: document.getElementById('update-btn'),
+        confirmModal: document.getElementById('confirm-modal'),
+        cancelDelete: document.getElementById('cancel-delete'),
+        confirmDelete: document.getElementById('confirm-delete'),
+        calculationResults: document.getElementById('calculation-results')
+      };
+
+      // Расчёт дисперсий по методу Паскуилла
+      function calculateSigma(x, coeffs) {
+        const logX = Math.log(x);
+        const sigmaY = Math.exp(coeffs.Iy + coeffs.Jy * logX + coeffs.Ky * Math.pow(logX, 2));
+        const sigmaZ = Math.exp(coeffs.Iz + coeffs.Jz * logX + coeffs.Kz * Math.pow(logX, 2));
+        return { sigmaY, sigmaZ };
+      }
+
+      // Поиск максимальной концентрации вдоль ветра
+      function calculateMaxConcentration(source) {
+        const coeffs = PASQUILL_COEFFS[source.stabilityClass];
+        let xMax = 0;
+        let cMax = 0;
+
+        for (let x = 50; x <= CONFIG.MAX_DISTANCE; x += 10) {
+          const { sigmaY, sigmaZ } = calculateSigma(x, coeffs);
+          if (sigmaY <= 0 || sigmaZ <= 0) continue;
+
+          const c = (source.emissionRate * 1000) / (Math.PI * source.windSpeed * sigmaY * sigmaZ * Math.E);
+
+          if (c > cMax) {
+            cMax = c;
+            xMax = x;
+          }
+        }
+        return { distance: xMax, concentration: cMax };
+      }
+
+      // Обновление блока с результатами
+      function updateCalculationResults(results) {
+        if (results.length === 0) {
+          dom.calculationResults.innerHTML = '<p>Нет данных для отображения</p>';
+          return;
+        }
+
+        let html = '';
+        results.forEach((result, index) => {
+          html += `
+            <div class="result-item">
+              <p><strong>Источник #${index + 1}</strong></p>
+              <p>Высота: ${result.height} м, выброс: ${result.emission.toFixed(3)} г/с</p>
+              <p>Макс. концентрация: ${result.concentration.toFixed(6)} мг/м³
+                 (${((result.concentration / CONFIG.PDK_H2S) * 100).toFixed(1)}% ПДК)</p>
+              <p>На расстоянии: ${result.distance} м</p>
+            </div>
+            <hr>
+          `;
+        });
+
+        dom.calculationResults.innerHTML = html;
+      }
+
+      // Инициализация интерфейса
+      function init() {
+        // Заполняем список направлений ветра
+        const windDirectionSelect = dom.windDirection;
+        Object.entries(WIND_DIRECTIONS).forEach(([value, name]) => {
+          const option = document.createElement('option');
+          option.value = value;
+          option.textContent = name;
+          if (value === '0') option.selected = true;
+          windDirectionSelect.appendChild(option);
+        });
+
+        setupEventListeners();
+        updateSourcesList();
+      }
+
+      // Обработчики событий
+      function setupEventListeners() {
+        dom.addSourceBtn.addEventListener('click', enableSourcePlacement);
+        dom.updateBtn.addEventListener('click', updateAllSources);
+        dom.searchBtn.addEventListener('click', searchCity);
+        dom.searchInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') searchCity();
+        });
+
+        document.querySelectorAll('.close').forEach(el => {
+          el.addEventListener('click', () => {
+            dom.confirmModal.style.display = 'none';
+          });
+        });
+        dom.cancelDelete.addEventListener('click', () => {
+          dom.confirmModal.style.display = 'none';
+        });
+        dom.confirmDelete.addEventListener('click', confirmDeleteSource);
+
+        map.events.add('boundschange', () => {
+          state.currentZoom = map.getZoom();
+          updateHeatmap();
+        });
+      }
+
+      // Расчёт концентрации в точке
+      function calculateConcentration(lat, lng, source) {
+        function haversineDistance(lat1, lon1, lat2, lon2) {
+          const R = 6371000;
+          const dLat = (lat2 - lat1) * Math.PI / 180;
+          const dLon = (lon2 - lon1) * Math.PI / 180;
+          const a =
+            Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+          return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        }
+
+        const distance = haversineDistance(source.lat, source.lng, lat, lng);
+        if (distance > CONFIG.MAX_DISTANCE) return 0;
+
+        const windDirectionRad = parseFloat(source.windDirection) * Math.PI / 180;
+
+        const dx = (lng - source.lng) * 111320 * Math.cos(source.lat * Math.PI / 180);
+        const dy = (lat - source.lat) * 111320;
+
+        const xRot = dx * Math.cos(windDirectionRad) + dy * Math.sin(windDirectionRad);
+        const yRot = -dx * Math.sin(windDirectionRad) + dy * Math.cos(windDirectionRad);
+
+        if (xRot <= 0) return 0;
+
+        const coeffs = PASQUILL_COEFFS[source.stabilityClass];
+        const logX = Math.log(xRot);
+
+        const sigmaY = Math.exp(coeffs.Iy + coeffs.Jy * logX + coeffs.Ky * Math.pow(logX, 2));
+        const sigmaZ = Math.exp(coeffs.Iz + coeffs.Jz * logX + coeffs.Kz * Math.pow(logX, 2));
+
+        const concentration = (source.emissionRate * 1000) / (2 * Math.PI * source.windSpeed * sigmaY * sigmaZ) *
+                            Math.exp(-0.5 * Math.pow(yRot/sigmaY, 2)) *
+                            Math.exp(-0.5 * Math.pow(source.height/sigmaZ, 2));
+
+        return concentration;
+      }
+
+      // Обновление тепловой карты (реализация через круги для Яндекс Карт)
+      function updateHeatmap() {
+        // Удаляем предыдущие heat-объекты
+        state.heatObjects.forEach(obj => {
+          map.geoObjects.remove(obj);
+        });
+        state.heatObjects = [];
+
+        if (state.sources.length === 0) {
+          updateCalculationResults([]);
+          return;
+        }
+
+        const maxResults = [];
+
+        state.sources.forEach(source => {
+          const maxConc = calculateMaxConcentration(source);
+          maxResults.push({
+            height: source.height,
+            emission: source.emissionRate,
+            distance: maxConc.distance,
+            concentration: maxConc.concentration
+          });
+
+          // Создаем heatmap через круги для Яндекс Карт
+          for (let x = -CONFIG.MAX_DISTANCE; x <= CONFIG.MAX_DISTANCE; x += CONFIG.GRID_STEP * 2) {
+            for (let y = -CONFIG.MAX_DISTANCE; y <= CONFIG.MAX_DISTANCE; y += CONFIG.GRID_STEP * 2) {
+              const lat = source.lat + (y / 111320);
+              const lng = source.lng + (x / (111320 * Math.cos(source.lat * Math.PI / 180)));
+
+              const c = calculateConcentration(lat, lng, source);
+              if (c > CONFIG.MIN_CONCENTRATION) {
+                const normalized = Math.min(c / CONFIG.PDK_H2S, 1.0);
+
+                // Определяем цвет в зависимости от концентрации
+                let color;
+                if (normalized < 0.2) color = '#00FF00';
+                else if (normalized < 0.4) color = '#7FFF00';
+                else if (normalized < 0.6) color = '#FFFF00';
+                else if (normalized < 0.8) color = '#FFA500';
+                else color = '#FF0000';
+
+                const circle = new ymaps.Circle([
+                  [lat, lng],
+                  35 // радиус круга
+                ], {}, {
+                  fillColor: color + '60',
+                  strokeColor: color,
+                  strokeWidth: 1,
+                  opacity: 0.6
+                });
+
+                state.heatObjects.push(circle);
+                map.geoObjects.add(circle);
+              }
+            }
+          }
+        });
+
+        updateCalculationResults(maxResults);
+      }
+
+      // Добавление нового источника
+      function addSource(lat, lng, height, emissionRate, windSpeed, windDirection, stabilityClass) {
+        const source = {
+          id: Date.now(),
+          type: 'point',
+          lat: lat,
+          lng: lng,
+          height: height,
+          emissionRate: emissionRate,
+          windSpeed: windSpeed,
+          windDirection: windDirection,
+          stabilityClass: stabilityClass,
+          placemark: null
+        };
+
+        // Создаем метку для Яндекс Карт
+        source.placemark = new ymaps.Placemark([lat, lng], {
+          balloonContent: `
+            <div style="font-size: 14px;">
+              <b>Источник выброса</b><br>
+              Координаты: ${lat.toFixed(5)}, ${lng.toFixed(5)}<br>
+              Высота: ${height} м<br>
+              Выброс: ${emissionRate.toFixed(3)} г/с H2S<br>
+              <button onclick="requestDeleteSource(${source.id})"
+                      style="margin-top: 5px; background-color: #e74c3c; color: white;
+                             border: none; padding: 5px 10px; border-radius: 3px;
+                             cursor: pointer; font-size: 12px;">
+                Удалить
+              </button>
+            </div>
+          `
+        }, {
+          preset: 'islands#redIcon'
+        });
+
+        map.geoObjects.add(source.placemark);
+        state.sources.push(source);
+        updateHeatmap();
+        updateSourcesList();
+      }
+
+      // Обновление списка источников
+      function updateSourcesList() {
+        dom.sourcesList.innerHTML = '';
+
+        if (state.sources.length === 0) {
+          dom.sourcesList.innerHTML = '<p style="text-align: center; color: #7f8c8d;">Нет добавленных источников</p>';
+          return;
+        }
+
+        state.sources.forEach(source => {
+          const sourceEl = document.createElement('div');
+          sourceEl.className = 'source-item';
+          sourceEl.innerHTML = `
+            <div class="source-info">
+              <strong>Источник выброса</strong><br>
+              <small>Высота: ${source.height} м, выброс: ${source.emissionRate.toFixed(3)} г/с</small>
+            </div>
+            <div class="source-actions">
+              <button onclick="flyToSource(${source.id})" style="background-color: #3498db;">К источнику</button>
+              <button onclick="requestDeleteSource(${source.id})" class="danger">Удалить</button>
+            </div>
+          `;
+          dom.sourcesList.appendChild(sourceEl);
+        });
+      }
+
+      // Включить режим добавления источника
+      function enableSourcePlacement() {
+        if (state.isPlacingSource) {
+          disableSourcePlacement();
+          return;
+        }
+
+        state.isPlacingSource = true;
+        dom.addSourceBtn.textContent = 'Отменить добавление';
+        dom.addSourceBtn.style.backgroundColor = '#e74c3c';
+
+        // Добавляем обработчик клика на карту
+        map.events.add('click', handleMapClickForPlacement);
+      }
+
+      // Выключить режим добавления источника
+      function disableSourcePlacement() {
+        state.isPlacingSource = false;
+        dom.addSourceBtn.textContent = 'Добавить источник';
+        dom.addSourceBtn.style.backgroundColor = '#3498db';
+
+        // Убираем обработчик клика на карту
+        map.events.remove('click', handleMapClickForPlacement);
+      }
+
+      // Добавление источника по клику
+      function handleMapClickForPlacement(e) {
+        const coords = e.get('coords');
+        const height = parseFloat(dom.sourceHeight.value);
+        const emissionRate = parseFloat(dom.emissionRate.value);
+        const windSpeed = parseFloat(dom.windSpeed.value);
+        const windDirection = dom.windDirection.value;
+        const stabilityClass = dom.stabilityClass.value;
+
+        addSource(coords[0], coords[1], height, emissionRate, windSpeed, windDirection, stabilityClass);
+        disableSourcePlacement();
+      }
+
+      // Обновить параметры всех источников
+      function updateAllSources() {
+        const windSpeed = parseFloat(dom.windSpeed.value);
+        const windDirection = dom.windDirection.value;
+        const stabilityClass = dom.stabilityClass.value;
+
+        state.sources.forEach(source => {
+          source.windSpeed = windSpeed;
+          source.windDirection = windDirection;
+          source.stabilityClass = stabilityClass;
+        });
+
+        updateHeatmap();
+      }
+
+      // Запрос на удаление источника
+      function requestDeleteSource(sourceId) {
+        state.sourceToDelete = state.sources.find(s => s.id === sourceId);
+        if (state.sourceToDelete) {
+          dom.confirmModal.style.display = 'block';
+        }
+      }
+
+      // Подтверждение удаления источника
+      function confirmDeleteSource() {
+        if (state.sourceToDelete) {
+          if (state.sourceToDelete.placemark) {
+            map.geoObjects.remove(state.sourceToDelete.placemark);
+          }
+          state.sources = state.sources.filter(s => s.id !== state.sourceToDelete.id);
+          updateHeatmap();
+          updateSourcesList();
+          dom.confirmModal.style.display = 'none';
+          state.sourceToDelete = null;
+        }
+      }
+
+      // Поиск города через геокодер Яндекс Карт
+      async function searchCity() {
+        const city = dom.searchInput.value.trim();
+        if (!city) return;
+
+        try {
+          const geocoder = ymaps.geocode(city);
+          geocoder.then(function (res) {
+            const firstGeoObject = res.geoObjects.get(0);
+            if (firstGeoObject) {
+              const bounds = firstGeoObject.properties.get('boundedBy');
+              map.setBounds(bounds, { checkZoomRange: true });
+            } else {
+              alert('Город не найден');
+            }
+          });
+        } catch (error) {
+          console.error('Ошибка при поиске города:', error);
+          alert('Произошла ошибка при поиске города');
+        }
+      }
+
+      // Перемещение к источнику
+      function flyToSource(sourceId) {
+        const source = state.sources.find(s => s.id === sourceId);
+        if (source) {
+          map.setCenter([source.lat, source.lng], 15);
+          source.placemark.balloon.open();
+        }
+      }
+
+      // Экспортируем функции для popup-кнопок
+      window.requestDeleteSource = requestDeleteSource;
+      window.flyToSource = flyToSource;
+  </script>
+</body>
+</html>
