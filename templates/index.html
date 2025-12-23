@@ -1,10 +1,93 @@
-<!DOCTYPE html>
-<html lang="en">
+﻿<!doctype html>
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8">
+    <title>Система моделирования выбросов вредных веществ</title>
+    <div class="header-divider"></div>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <script src="https://api-maps.yandex.ru/2.1/?apikey={{config.YMAPS_API_KEY}}&lang={{config.YMAPS_LANG}}" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </head>
 <body>
+    <header class="header">
+        <div class="title-container">
+            <img src="{{ url_for('static', filename='img/logo_white.png') }}" alt="Логотип" width="72" height="48.86">
+            <h1 class="site-title">Система моделирования выбросов вредных веществ</h1>          
+        </div>
 
+        <nav class="navbar">
+            <a href="{{ url_for('index') }}" class="active">Мониторинг</a>
+            <a href="{{ url_for('history') }}">История</a>
+            <a href="{{ url_for('forecasting') }}">Прогнозирование</a>
+            <a href="{{ url_for('recommendations') }}">Рекомендации</a>
+            <a href="{{ url_for('enterprise') }}">Режим предприятия</a>
+            <a href="{{ url_for('login') }}">Авторизация</a>
+        </nav>
+    </header>
+    <main class="container">
+        <aside class="panel">
+            <h2>Интересующее вещество</h2>
+            <div class="form-row">
+                <select class="select">
+                    <option>Сероводород (H₂S)</option>
+                </select>
+            </div>
+
+            <h2>Ваше местоположение:</h2>
+            <div class="form-row">
+                <label><input type="checkbox"> Выбрать самостоятельно</label>
+            </div>
+            <button class="btn">Найти меня на карте</button>
+
+            <div class="legend">
+                <h3>Легенда</h3>
+                <div class="row"><span class="swatch ok"></span> Допустимые концентрации</div>
+                <div class="row"><span class="swatch warn"></span> Близкие к ПДК значения</div>
+                <div class="row"><span class="swatch pdq"></span> Значения на уровне ПДК</div>
+                <div class="row"><span class="swatch danger"></span> Превышение ПДК</div>
+            </div>
+
+            <button class="btn">Концентрации сейчас</button>
+            <button class="btn">Обновить карту</button>
+        </aside>
+
+        <section class="card">
+            <div class="map-header">
+                <div class="map-meta">
+                    Ветер: 1,9 м/с, В     Давление: 764 мм рт. ст.     Влажность: 61%     Дальность видимости: 61 км     Изотермия: не наблюдается
+                </div>
+            </div>
+<!-- Панель управления погодой -->
+<div class="weather-controls" style="padding: 10px; background: rgba(255,255,255,0.9); border-radius: 8px; margin-bottom: 10px; display: flex; gap: 10px; justify-content: center;">
+    <button id="toggleWind" class="btn" style="background: linear-gradient(180deg, #3498db, #2980b9); color: white; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer;">
+        Ветер: Вкл
+    </button>
+    <button id="togglePrecip" class="btn" style="background: linear-gradient(180deg, #27ae60, #229954); color: white; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer;">
+        Осадки: Вкл
+    </button>
+    <button id="updateWeather" class="btn" style="background: linear-gradient(180deg, #f39c12, #e67e22); color: white; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer;">
+        Обновить погоду
+    </button>
+</div>
+            <div id="map" class="map"></div>
+
+            <div class="timeline-wrap">
+                <div class="time-ticks">
+                    <span>09:30</span><span>09:40</span><span>09:50</span>
+                    <span>10:00</span><span>10:10</span><span>10:20</span>
+                    <span>Сейчас</span><span>10:40</span><span>10:50</span>
+                    <span>11:00</span><span>11:10</span><span>11:20</span><span>11:30</span>
+                </div>
+                <div class="timeline">
+                    <div class="handle">
+                        <div class="triangle"></div>
+                        <div class="dot"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 </body>
 </html>

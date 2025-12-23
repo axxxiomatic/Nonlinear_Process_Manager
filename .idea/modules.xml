@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/nonlinear_process_manager.iml" filepath="$PROJECT_DIR$/.idea/nonlinear_process_manager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/EcologicalPredictor.iml" filepath="$PROJECT_DIR$/.idea/EcologicalPredictor.iml" />
     </modules>
   </component>
 </project>

@@ -1,0 +1,101 @@
+﻿<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>Система моделирования выбросов вредных веществ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/recommendations.css') }}">
+    <script src="https://api-maps.yandex.ru/2.1/?apikey={{config.YMAPS_API_KEY}}&lang={{config.YMAPS_LANG}}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="title-container">
+            <img src="{{ url_for('static', filename='img/logo_white.png') }}" alt="Логотип" width="72" height="48.86">
+            <h1 class="site-title">Система моделирования выбросов вредных веществ</h1>
+
+        </div>
+
+        <nav class="navbar">
+            <a href="{{ url_for('index') }}">Мониторинг</a>
+            <a href="{{ url_for('history') }}">История</a>
+            <a href="{{ url_for('forecasting') }}">Прогнозирование</a>
+            <a href="{{ url_for('recommendations') }}" class="active">Рекомендации</a>
+            <a href="{{ url_for('enterprise') }}">Режим предприятия</a>
+            <a href="{{ url_for('login') }}">Авторизация</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <!-- Левая часть -->
+        <aside class="panel alerts-panel">
+            <h2 class="section-title">Ожидается превышение ПДК:</h2>
+
+            <div class="alert-item">
+                <div class="alert-header">
+                    <span class="dot yellow"></span>
+                    <span class="substance">Углекислота (CO₂)</span>
+                    <span class="percent-badge dark">10%</span>
+                </div>
+                <div class="alert-time">Снижение до ПДК ожидается:</div>
+                <div class="alert-time-value">Сегодня, 23:30</div>
+            </div>
+
+            <div class="alert-item">
+                <div class="alert-header">
+                    <span class="dot yellow"></span>
+                    <span class="substance">Диоксид азота (NO₂)</span>
+                    <span class="percent-badge dark">3%</span>
+                </div>
+                <div class="alert-time">Снижение до ПДК ожидается:</div>
+                <div class="alert-time-value">Сегодня, 18:00</div>
+            </div>
+
+            <div class="alert-item">
+                <div class="alert-header">
+                    <span class="dot yellow"></span>
+                    <span class="substance">Метан (CH₄)</span>
+                    <span class="percent-badge dark">1%</span>
+                </div>
+                <div class="alert-time">Снижение до ПДК ожидается:</div>
+                <div class="alert-time-value">Завтра, 13:00</div>
+            </div>
+
+            <h2 class="section-title recommendations-title">Рекомендации:</h2>
+
+            <ul class="recommendations-list">
+                <li>Временно воздержитесь от проведения и участия в массовых мероприятиях</li>
+                <li>Предпримите поездку за город</li>
+                <li>По возможности выбирайте помещения, оснащённые кондиционером или бризером</li>
+            </ul>
+        </aside>
+
+        <!-- Правая часть -->
+        <section class="card">
+            <div class="map-header">
+                <div class="map-meta">
+                    Ветер: 1,9 м/с, В Давление: 764 мм рт. ст. Влажность: 61% Дальность видимости: 61 км Изотермия: не наблюдается
+                </div>
+            </div>
+
+            <div id="map" class="map"></div>
+
+            <div class="timeline-wrap">
+                <div class="time-ticks">
+                    <span>09:30</span><span>09:40</span><span>09:50</span>
+                    <span>10:00</span><span>10:10</span><span>10:20</span>
+                    <span>Сейчас</span><span>10:40</span><span>10:50</span>
+                    <span>11:00</span><span>11:10</span><span>11:20</span><span>11:30</span>
+                </div>
+                <div class="timeline">
+                    <div class="handle">
+                        <div class="triangle"></div>
+                        <div class="dot"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

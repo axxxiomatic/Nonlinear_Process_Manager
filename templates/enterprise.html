@@ -1,0 +1,203 @@
+﻿<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>Система моделирования выбросов вредных веществ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/enterprise.css') }}">
+
+    <!-- Подключение Yandex JS API 2.1, модуля тепловых карт и собственного JS-кода-->
+    <script src="https://api-maps.yandex.ru/2.1/?apikey={{config.YMAPS_API_KEY}}&lang={{config.YMAPS_LANG}}"></script>
+    <script src="https://yastatic.net/s3/mapsapi-jslibs/heatmap/0.0.1/heatmap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/enterprise.js') }}"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="title-container">
+            <img src="{{ url_for('static', filename='img/logo_white.png') }}" alt="Логотип" width="72" height="48.86">
+            <h1 class="site-title">Система моделирования выбросов вредных веществ</h1>
+        </div>
+        <nav class="navbar">
+            <a href="{{ url_for('index') }}">Мониторинг</a>
+            <a href="{{ url_for('history') }}">История</a>
+            <a href="{{ url_for('forecasting') }}">Прогнозирование</a>
+            <a href="{{ url_for('recommendations') }}">Рекомендации</a>
+            <a href="{{ url_for('enterprise') }}" class="active">Режим предприятия</a>
+            <a href="{{ url_for('login') }}">Авторизация</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <aside class="panel">
+            <h2>Выберите вещество</h2>
+            <div class="select styled">Сероводород (H₂S) <span class="arrow">▼</span></div>
+
+            <h2>Тип источника</h2>
+            <div class="select styled">Точечный источник <span class="arrow">▼</span></div>
+
+            <h2>Высота, м</h2>
+            <input type="text" class="input-pill" id="source-height" value="40" />
+
+            <h2>Выброс, г/с</h2>
+            <input type="text" class="input-pill" id="emission-rate" value="3,7" />
+
+            <button class="add-source" id="add-source-btn">Добавить источник</button>
+
+            <h2 style="margin-top: 40px;">Легенда</h2>
+            <div class="enterprise-legend-item"><span class="swatch ok"></span> Допустимые концентрации</div>
+            <div class="enterprise-legend-item"><span class="swatch warn"></span> Близкие к ПДК значения</div>
+            <div class="enterprise-legend-item"><span class="swatch pdq"></span> Значения на уровне ПДК</div>
+            <div class="enterprise-legend-item"><span class="swatch danger"></span> Превышение ПДК</div>
+
+            <div id="sources-list">
+                {% for source in sources %}
+                <div class="enterprise-source-item">
+                    <div>{{ source.name }}</div>
+                    <button class="btn-delete" onclick="requestDeleteSource({{ source.id }})">Удалить</button>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="results-panel">
+                <h3>Результаты расчёта</h3>
+                <div id="calculation-results">
+                    <p>Нажмите "Обновить данные" для расчета</p>
+                </div>
+            </div>
+        </aside>
+
+        <section class="card">
+            <div class="map-header">
+                <div class="map-meta">
+                    Ветер: <span id="wind-speed-display">2.4</span> м/с &nbsp;&nbsp;
+                    Направление: <span id="wind-direction-display">Юг</span> &nbsp;&nbsp;
+                    Класс устойчивости: <span id="stability-class-display">D</span>
+                </div>
+            </div>
+
+            <div id="map"></div>
+
+            <!-- Отладочная информация -->
+            <div class="debug-info" id="debug-info">
+                Статус: <span id="debug-status">Загрузка...</span>
+            </div>
+
+            <!-- Сообщение об ошибке -->
+            <div class="error-message" id="error-message">
+                <h3 style="color: red; margin-top: 0;">Ошибка загрузки карты</h3>
+                <p>Проверьте подключение к интернету и API-ключ Яндекс.Карт</p>
+                <button onclick="location.reload()" style="padding: 5px 15px; margin-top: 10px;">Перезагрузить</button>
+            </div>
+
+            <!-- Индикатор загрузки -->
+            <div class="loading-indicator" id="loading-indicator">
+                <div style="font-weight: bold; margin-bottom: 10px;">Расчет рассеивания загрязнений...</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div id="progress-text" style="font-size: 12px; color: #666;">0%</div>
+            </div>
+
+            <!-- Элементы управления тепловой картой -->
+            <div class="heatmap-controls">
+                <div class="heatmap-intensity" id="radius-value">Радиус: 100 пикселей</div>
+                <label>
+                    <input type="checkbox" id="heatmap-toggle" checked>
+                    Показать тепловую карту
+                </label>
+                <button class="test-button" id="update-heatmap-btn">Обновить данные</button>
+                <button class="test-button" id="toggle-debug-btn">Отладка</button>
+                <button class="test-button" id="test-wind-effect" style="margin-top: 5px;">
+                    Тест влияния ветра
+                </button>
+            </div>
+
+            <!-- Элементы управления ветром -->
+            <div class="wind-controls">
+                <div style="font-weight: bold; margin-bottom: 10px; text-align: center;">Настройки ветра</div>
+
+                <label style="display: block; margin-bottom: 5px;">
+                    Скорость ветра:
+                    <input type="range" id="wind-speed" min="0" max="20" value="2.4" step="0.1" style="width: 100%;">
+                </label>
+                <div class="heatmap-intensity" id="wind-speed-value">2.4 м/с</div>
+
+                <label style="display: block; margin-top: 10px;">
+                    Направление ветра:
+                    <input type="range" id="wind-direction" min="0" max="360" value="180" step="1" style="width: 100%;">
+                </label>
+                <div class="heatmap-intensity" id="wind-direction-value">180° (Юг)</div>
+
+                <div class="wind-direction-display">
+                    <div class="wind-compass-points">
+                        <div class="compass-point north">С</div>
+                        <div class="compass-point east">В</div>
+                        <div class="compass-point south">Ю</div>
+                        <div class="compass-point west">З</div>
+                    </div>
+                    <div class="wind-direction-arrow" id="wind-direction-arrow"></div>
+                    <div class="wind-direction-label" id="wind-direction-label">180°</div>
+                </div>
+
+                <label style="display: block; margin-top: 5px;">
+                    <input type="checkbox" id="show-wind-vectors" checked>
+                    Показать векторы ветра
+                </label>
+
+                <button class="test-button" style="margin-top: 10px; width: 100%;" id="reset-wind-btn">Сбросить ветер</button>
+            </div>
+
+            <!-- Легенда для тепловой карты -->
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: rgba(0, 255, 0, 0.3);"></div>
+                    <span>&lt; 20% ПДК</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: rgba(255, 255, 0, 0.7);"></div>
+                    <span>20-60% ПДК</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: rgba(255, 165, 0, 0.8);"></div>
+                    <span>60-80% ПДК</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: rgba(255, 0, 0, 1.0);"></div>
+                    <span>&gt; 80% ПДК</span>
+                </div>
+            </div>
+
+            <div class="timeline-wrap">
+                <div class="time-ticks">
+                    <span>09:30</span><span>09:40</span><span>09:50</span>
+                    <span>10:00</span><span>10:10</span><span>10:20</span>
+                    <span>Сейчас</span><span>10:40</span><span>10:50</span>
+                    <span>11:00</span><span>11:10</span><span>11:20</span><span>11:30</span>
+                </div>
+                <div class="timeline">
+                    <div class="handle">
+                        <div class="triangle"></div>
+                        <div class="dot"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Модальное окно подтверждения удаления источника -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Подтверждение действия</h3>
+                <span class="close">&times;</span>
+            </div>
+            <p>Вы уверены, что хотите удалить этот источник?</p>
+            <div class="modal-footer">
+                <button class="modal-btn" id="cancel-delete" style="background: #95a5a6;">Отмена</button>
+                <button class="modal-btn" id="confirm-delete" style="background: #e74c3c;">Удалить</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

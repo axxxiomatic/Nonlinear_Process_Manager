@@ -1,10 +1,124 @@
-<!DOCTYPE html>
-<html lang="en">
+﻿<!doctype html>
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8">
+    <title>Система моделирования выбросов вредных веществ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/history.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/history.js') }}"></script>
 </head>
 <body>
+    <header class="header">
+        <div class="title-container">
+            <img src="{{ url_for('static', filename='img/logo_white.png') }}" alt="Логотип" width="72" height="48.86">
+            <h1 class="site-title">Система моделирования выбросов вредных веществ</h1>
+        </div>
 
+        <nav class="navbar">
+            <a href="{{ url_for('index') }}">Мониторинг</a>
+            <a href="{{ url_for('history') }}" class="active">История</a>
+            <a href="{{ url_for('forecasting') }}">Прогнозирование</a>
+            <a href="{{ url_for('recommendations') }}">Рекомендации</a>
+            <a href="{{ url_for('enterprise') }}">Режим предприятия</a>
+            <a href="{{ url_for('login') }}">Авторизация</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <!-- Левая часть -->
+<aside class="panel">
+    <h2>Интересующее вещество</h2>
+<div class="form-row">
+    <div class="select styled clickable" id="substanceSelect">
+        Сероводород (H₂S) <span class="arrow">▼</span>
+    </div>
+    <div class="dropdown-list" id="substanceDropdown" style="display: none;">
+        <div class="dropdown-item" data-value="h2s">Сероводород (H₂S)</div>
+        <div class="dropdown-item" data-value="no2">Диоксид азота (NO₂)</div>
+        <div class="dropdown-item" data-value="pm10">PM10 (взвешенные частицы)</div>
+        <div class="dropdown-item" data-value="pm25">PM2.5 (мелкодисперсные частицы)</div>
+        <div class="dropdown-item" data-value="co">Угарный газ (CO)</div>
+        <div class="dropdown-item" data-value="so2">Диоксид серы (SO₂)</div>
+        <div class="dropdown-item" data-value="o3">Озон (O₃)</div>
+    </div>
+</div>
+    <h2>Ваше местоположение</h2>
+    <div class="form-row">
+        <div class="select styled clickable" id="citySelect">
+            Москва <span class="arrow">▼</span>
+        </div>
+        <div class="dropdown-list" id="cityDropdown">
+            <div class="dropdown-item" data-value="Москва">Москва</div>
+            <div class="dropdown-item" data-value="Санкт-Петербург">Санкт-Петербург</div>
+            <div class="dropdown-item" data-value="Новосибирск">Новосибирск</div>
+            <div class="dropdown-item" data-value="Екатеринбург">Екатеринбург</div>
+            <div class="dropdown-item" data-value="Казань">Казань</div>
+        </div>
+    </div>
+    <div class="form-row checkbox-row" style="margin-top: 20px;">
+        <label style="cursor: pointer;" id="manualAddressToggle">
+            <input type="checkbox" id="manualAddressCheckbox"> Указать адрес вручную
+        </label>
+    </div>
+
+    <div class="form-row" id="manualAddressInput" style="display: none; margin-top: 12px;">
+        <input type="text" placeholder="Например: ул. Тверская, 7, Москва" class="address-input" id="addressField">
+    </div>
+
+    <h2 style="margin-top: 32px;">Показать результаты за:</h2>
+    <div class="period-tabs">
+        <button class="tab">день</button>
+        <button class="tab">месяц</button>
+        <button class="tab">полгода</button>
+        <button class="tab active">год</button>
+    </div>
+
+    <div class="form-row checkbox-row">
+        <label><input type="checkbox"> Сравнивать с предсказаниями</label>
+    </div>
+
+    <h2 style="margin-top: 32px;">Экспорт данных</h2>
+    <div class="form-row">
+        <div class="select styled">Формат .XLSX <span class="arrow">▼</span></div>
+    </div>
+    <button class="btn export-btn">Экспортировать</button>
+</aside>
+        <!-- Правая часть-->
+        <section class="card">
+            <div class="map-header">
+                <div class="map-meta">
+                    Ветер: 1,9 м/с, В Давление: 764 мм рт. ст. Влажность: 61% Дальность видимости: 61 км Изотермия: не наблюдается
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">СОДЕРЖАНИЕ В ВОЗДУХЕ, мг/м³</div>
+                <canvas id="concentrationChart"></canvas>
+            </div>
+
+            <div class="timeline-wrap">
+                <div class="time-ticks">
+                    <span>Декабрь 2024</span>
+                    <span>Январь 2025</span>
+                    <span>Февраль 2025</span>
+                    <span>Март 2025</span>
+                    <span>Апрель 2025</span>
+                    <span>Май 2025</span>
+                    <span>Июнь 2025</span>
+                    <span>Июль 2025</span>
+                    <span>Август 2025</span>
+                    <span>Сейчас</span>
+                </div>
+                <div class="timeline">
+                    <div class="handle">
+                        <div class="triangle"></div>
+                        <div class="dot"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 </body>
 </html>

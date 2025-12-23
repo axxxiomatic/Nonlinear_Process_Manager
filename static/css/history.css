@@ -1,0 +1,152 @@
+.styled {
+    background: #c8d6e0;
+    padding: 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    color: #2c3e50;
+    position: relative;
+}
+
+    .styled .arrow {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+    }
+
+.checkbox-row {
+    margin: 20px 0;
+}
+
+    .checkbox-row label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        accent-color: #f07a2a;
+    }
+
+.period-tabs {
+    display: flex;
+    gap: 8px;
+    margin: 16px 0;
+    flex-wrap: wrap;
+}
+
+.tab {
+    padding: 10px 16px;
+    background: #c8d6e0;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    color: #2c3e50;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.tab.active {
+    background: #c8d9e5 !important;
+    box-shadow: none !important;
+    color: #2c3e50 !important;
+}
+
+.tab:hover {
+    background: #d9e3eb;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+
+.export-btn {
+    background: linear-gradient(180deg, #95a5a6, #7f8c8d) !important;
+    margin-top: 12px;
+}
+
+    .export-btn:hover {
+        background: linear-gradient(180deg, #a0b0b1, #95a5a6) !important;
+    }
+
+.chart-container {
+    background: white;
+    border-radius: 18px;
+    padding: 24px;
+    margin-top: 20px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    position: relative;
+    height: 620px;
+}
+
+.chart-title {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 20px;
+    font-weight: 700;
+    color: #2c3e50;
+    z-index: 10;
+}
+
+#concentrationChart {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.clickable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.dropdown-list {
+    display: none;
+    position: absolute;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    margin-top: 6px;
+    width: 100%;
+    max-width: 302.5px;
+    max-height: 180px;
+    overflow-y: auto;
+    z-index: 1000;
+    border: 1px solid #ddd;
+}
+
+.dropdown-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.address-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #c8d6e0;
+    border-radius: 12px;
+    font-size: 16px;
+    background: #f8fbff;
+}
+
+.address-input:focus {
+    outline: none;
+    border-color: #f07a2a;
+    border-color: #f07a2a;
+    box-shadow: 0 0 0 3px rgba(240,122,42,0.2);
+}
+
+#substanceDropdown {
+    width: 100%;
+    max-width: 302.5px !important;
+    max-height: 200px;
+}

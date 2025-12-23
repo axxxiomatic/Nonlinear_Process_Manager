@@ -1,0 +1,83 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    width: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.header {
+    flex-shrink: 0;
+    width: 100%;
+}
+
+.container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+    width: 100%;
+    max-width: none;
+}
+
+.panel {
+    flex-shrink: 0;
+    overflow-y: auto;
+    height: 100%;
+    min-width: fit-content;
+}
+
+.card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    width: 100%;
+}
+
+.map-header {
+    flex-shrink: 0;
+    width: 100%;
+}
+
+#map {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+}
+
+.timeline-wrap {
+    flex-shrink: 0;
+    width: 100%;
+}
+
+.panel .btn {
+    background: linear-gradient(180deg, #ffa64d, #f07a2a) !important;
+}
+
+    .panel .btn:hover {
+        background: linear-gradient(180deg, #ffb766, #f58c3b) !important;
+    }
+
+.container-fluid {
+    max-width: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.col, [class*="col-"] {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}

@@ -1,0 +1,86 @@
+﻿<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>Система моделирования выбросов вредных веществ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+    <header class="header">
+        <div class="title-container">
+            <img src="{{ url_for('static', filename='img/logo_white.png') }}" alt="Логотип" width="72" height="48.86">
+            <h1 class="site-title">Система моделирования выбросов вредных веществ</h1>        
+        </div>
+        <nav class="navbar">
+            <a href="{{ url_for('index') }}">Мониторинг</a>
+            <a href="{{ url_for('history') }}">История</a>
+            <a href="{{ url_for('forecasting') }}">Прогнозирование</a>
+            <a href="{{ url_for('recommendations') }}">Рекомендации</a>
+            <a href="{{ url_for('enterprise') }}">Режим предприятия</a>
+            <a href="{{ url_for('login') }}" class="active">Авторизация</a>
+        </nav>
+    </header>
+
+    <main class="login-container">
+        <!-- Левая колонка — Вход -->
+        <div class="card login-card">
+            <h2>Уже зарегистрированы<br>в нашей системе?</h2>
+            <form class="form-group">
+                <label>Ваш e-mail адрес:</label>
+                <input type="email" class="input-field" placeholder="example@mail.ru">
+
+                <label>Ваш пароль:</label>
+                <input type="password" class="input-field" placeholder="•••••••••••••">
+
+                <div class="captcha">
+                    <input type="checkbox" checked> Я не робот
+                    <img src="https://via.placeholder.com/80x40?text=reCAPTCHA" alt="reCAPTCHA">
+                </div>
+
+                <button type="submit" class="btn login-btn">Авторизация</button>
+            </form>
+        </div>
+
+        <!-- Правая часть -->
+        <div class="card register-card">
+            <h2>Анкета для регистрации нового предприятия</h2>
+            <form class="form-group grid">
+                <div>
+                    <label>Контактный e-mail адрес:</label>
+                    <input type="email" class="input-field">
+
+                    <label>Название предприятия:</label>
+                    <input type="text" class="input-field">
+
+                    <label>Ваш пароль:</label>
+                    <input type="password" class="input-field">
+                </div>
+                <div>
+                    <label>ФИО представителя:</label>
+                    <input type="text" class="input-field">
+
+                    <label>Фактический адрес:</label>
+                    <input type="text" class="input-field">
+
+                    <label>Подтвердите пароль:</label>
+                    <input type="password" class="input-field">
+                </div>
+            </form>
+
+            <label class="wide-label">Основные вещества, выделяемые предприятием:</label>
+            <input type="text" class="input-field wide">
+
+            <label class="wide-label">Направленность деятельности предприятия:</label>
+            <input type="text" class="input-field wide">
+
+            <div class="consent">
+                <input type="checkbox"> Я даю согласие на обработку данных
+            </div>
+
+            <button class="btn register-btn">Зарегистрироваться на сайте</button>
+        </div>
+    </main>
+</body>
+</html>

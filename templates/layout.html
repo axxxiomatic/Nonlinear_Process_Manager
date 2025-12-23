@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}������� ������������� ��������{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="header">
+        <div class="title-container">
+            <h1 class="site-title">������� ������������� �������� ������� �������</h1>
+        </div>
+        <nav class="navbar">
+            <a href="{{ url_for('index') }}" {% if request.path= ='/' %}class="active" {% endif %}>����������</a>
+            <a href="{{ url_for('history') }}" {% if request.path= ='/history' %}class="active" {% endif %}>�������</a>
+            <a href="{{ url_for('forecasting') }}" {% if request.path= ='/forecasting' %}class="active" {% endif %}>���������������</a>
+            <a href="{{ url_for('recommendations') }}" {% if request.path= ='/recommendations' %}class="active" {% endif %}>������������</a>
+            <a href="{{ url_for('enterprise') }}" {% if request.path= ='/enterprise' %}class="active" {% endif %}>������������</a>
+            <a href="{{ url_for('login') }}" {% if request.path= ='/login' %}class="active" {% endif %}>������������</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

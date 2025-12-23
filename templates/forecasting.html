@@ -1,0 +1,125 @@
+﻿<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>Система моделирования выбросов вредных веществ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forecasting.css') }}">
+</head>
+<body>
+    <header class="header">
+        <div class="title-container">
+            <img src="{{ url_for('static', filename='img/logo_white.png') }}" alt="Логотип" width="72" height="48.86">
+            <h1 class="site-title">Система моделирования выбросов вредных веществ</h1>          
+        </div>
+
+        <nav class="navbar">
+            <a href="{{ url_for('index') }}">Мониторинг</a>
+            <a href="{{ url_for('history') }}">История</a>
+            <a href="{{ url_for('forecasting') }}" class="active">Прогнозирование</a>
+            <a href="{{ url_for('recommendations') }}">Рекомендации</a>
+            <a href="{{ url_for('enterprise') }}">Режим предприятия</a>
+            <a href="{{ url_for('login') }}">Авторизация</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <!-- Левая часть -->
+        <aside class="panel">
+            <h2>Интересующее вещество</h2>
+            <div class="form-row">
+                <div class="select styled">Сероводород (H₂S) <span class="arrow">▼</span></div>
+            </div>
+
+            <h2>Ваше местоположение</h2>
+            <div class="form-row">
+                <div class="select styled">Москва <span class="arrow">▼</span></div>
+            </div>
+
+            <div class="form-row checkbox-row">
+                <label><input type="checkbox"> Указать координаты</label>
+            </div>
+
+            <h2>Строить прогноз на:</h2>
+            <div class="period-tabs">
+                <button class="tab">день</button>
+                <button class="tab">месяц</button>
+                <button class="tab">полгода</button>
+                <button class="tab active">год</button>
+            </div>
+
+            <h2>Выберите центр нужного отрезка времени</h2>
+            <div class="form-row">
+                <div class="select styled date-select">
+                    29 сентября 2025 <span class="calendar-icon">Calendar</span>
+                </div>
+            </div>
+
+            <h2>Версия модели</h2>
+            <div class="form-row">
+                <div class="select styled">v2025-8-29-dev15.0 <span class="arrow">▼</span></div>
+            </div>
+
+            <button class="btn update-btn">Обновить прогноз</button>
+        </aside>
+
+        <!-- Правая часть -->
+        <section class="card forecast-card">
+            <div class="results-block">
+                <h2 class="results-title">Результаты предсказания с помощью модели</h2>
+
+                <div class="forecast-values">
+                    <div class="value-item">
+                        <div class="label">Прогнозируемый уровень концентрации (средний за год):</div>
+                        <div class="value-badge orange">0.03 ПДК</div>
+                    </div>
+                    <div class="value-item">
+                        <div class="label">Возможная ошибка прогнозирования:</div>
+                        <div class="value-badge gray">1.05 %</div>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="factors-title">Анализ факторов, влияющих на концентрацию вещества</h2>
+
+            <div class="factors-grid">
+                <div class="factor">
+                    <div class="circle green">
+                        <div class="percent">0.5%</div>
+                    </div>
+                    <div class="factor-label">Ветер (восточный, 19 м/с)</div>
+                </div>
+
+                <div class="factor">
+                    <div class="circle yellow">
+                        <div class="percent">7.5%</div>
+                    </div>
+                    <div class="factor-label">Класс устойчивости по Пасквиллу</div>
+                </div>
+
+                <div class="factor">
+                    <div class="circle red">
+                        <div class="percent">10.7%</div>
+                    </div>
+                    <div class="factor-label">Погодные условия</div>
+                </div>
+
+                <div class="factor">
+                    <div class="circle yellow">
+                        <div class="percent">5.5%</div>
+                    </div>
+                    <div class="factor-label">Особенности выбранной местности</div>
+                </div>
+
+                <div class="factor">
+                    <div class="circle red">
+                        <div class="percent">22.25%</div>
+                    </div>
+                    <div class="factor-label">Предприятия, находящиеся рядом</div>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
