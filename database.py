@@ -16,30 +16,6 @@ def init_db():
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
-        # Создание таблицы источников
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS sources (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                type TEXT NOT NULL,
-                latitude REAL NOT NULL,
-                longitude REAL NOT NULL,
-                height REAL NOT NULL,
-                emission_rate REAL NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-
-        # Создание таблицы параметров моделирования
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS simulation_params (
-                id INTEGER PRIMARY KEY,
-                wind_speed REAL NOT NULL,
-                wind_direction TEXT NOT NULL,
-                stability_class TEXT NOT NULL,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
 
         # Проверка наличия данных в таблице с помощью курсора
         cursor.execute("SELECT COUNT(*) FROM sources")
