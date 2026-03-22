@@ -12,9 +12,6 @@ async def get_all_sources(db: AsyncSession = Depends(get_db)):
     source_service = SourceService(db)
     result = await source_service.get_all_sources()
 
-    if not result:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-
     return result
 
 
