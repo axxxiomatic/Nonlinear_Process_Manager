@@ -21,64 +21,41 @@ async def index(request: Request, db:AsyncSession = Depends(get_db)):
         "sources": sources,
         "simulation_params": simulation_params
     })
-
-    if not template:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                            detail="Ошибка работы сервера, шаблон не найден или повреждён")
-
     return template
 
 
 @router.get('/history')
 async def history(request:Request):
     template = templates.TemplateResponse("history.html", {"request": request})
-
-    if not template:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                            detail="Ошибка работы сервера, шаблон не найден или повреждён")
-
     return template
 
 
 @router.get('/recommendations')
 async def recommendations(request:Request):
     template = templates.TemplateResponse("recommendations.html", {"request": request})
-
-    if not template:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                            detail="Ошибка работы сервера, шаблон не найден или повреждён")
-
     return template
 
 
 @router.get('/forecasting')
 async def forecasting(request:Request):
     template = templates.TemplateResponse("forecasting.html", {"request":request})
-
-    if not template:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                            detail="Ошибка работы сервера, шаблон не найден или повреждён")
-
     return template
 
 
 @router.get('/enterprise')
-async def enterprise(request: Request):
-    template = templates.TemplateResponse("enterprise.html", {"request": request})
+async def enterprise(request: Request, db: AsyncSession = Depends(get_db)):
 
-    if not template:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                            detail="Ошибка работы сервера, шаблон не найден или повреждён")
-
+    source_service = SourceService(db)
+    sources = await source_service.get_all_sources()
+    template = templates.TemplateResponse("enterprise.html", {
+        "request": request,
+        "sources": sources})
     return template
 
 
 @router.get('/login')
 async def login(request: Request):
     template = templates.TemplateResponse("login.html", {"request": request})
-
-    if not template:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                            detail="Ошибка работы сервера, шаблон не найден или повреждён")
-
     return template
+
+

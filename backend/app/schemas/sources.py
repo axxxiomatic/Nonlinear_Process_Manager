@@ -13,9 +13,10 @@ class SourcesBase(BaseModel):
 
 
 class SourcesResponse(SourcesBase):
+    id: int
 
     class Config:
-        from_attributes: True
+        from_attributes = True
 
 
 class SourcesCreate(SourcesBase):

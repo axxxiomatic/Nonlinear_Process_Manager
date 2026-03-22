@@ -2,12 +2,13 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from ..services.source_service import SourceService
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..database import get_db
-from ..schemas.sources import SourcesCreate
+from ..schemas.sources import SourcesCreate, SourcesResponse
+from typing import List
 
 router = APIRouter(tags=['sources'], prefix="/api/sources")
 
 
-@router.get("/")
+@router.get("/", response_model=List[SourcesResponse])
 async def get_all_sources(db: AsyncSession = Depends(get_db)):
     source_service = SourceService(db)
     result = await source_service.get_all_sources()
