@@ -880,6 +880,8 @@ function dirToText(dir) {
 // Обновление текстовой панели с данными о погоде
 async function refreshWeather() {
     try {
+        const apiKey = window.appConfig.YWEATHER_API_KEY;
+
         const res = await fetch('https://api.weather.yandex.ru/v2/forecast?lat=55.7558&lon=37.6173&limit=1', {
             headers: { 'X-Yandex-API-Key': windows.appConfig.YWEATHER_API_KEY }
         });
