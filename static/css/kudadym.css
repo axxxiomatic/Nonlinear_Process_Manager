@@ -1,0 +1,1152 @@
+/* ========== ПОДКЛЮЧЕНИЕ ШРИФТОВ ========== */
+@font-face {
+    font-family: 'Actay';
+    src: url('../fonts/Actay-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Actay';
+    src: url('../fonts/Actay-Regularltalic.woff2') format('woff2');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Actay Condensed';
+    src: url('../fonts/ActayCondensed-Thin.woff2') format('woff2');
+    font-weight: 100;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Actay Condensed';
+    src: url('../fonts/ActayCondensed-Thintlatic.woff2') format('woff2');
+    font-weight: 100;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Actay Wide';
+    src: url('../fonts/ActayWide-Bold.woff2') format('woff2');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Actay Wide';
+    src: url('../fonts/ActayWide-Boldltalic.woff2') format('woff2');
+    font-weight: bold;
+    font-style: italic;
+}
+
+/* ========== ОСНОВНЫЕ СТИЛИ ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Actay', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f0f4f8;
+    overflow: hidden;
+}
+
+/* ========== ХЕДЕР — максимально поднят вверх ========== */
+.kuda-header {
+    position: fixed; /* фиксируем к верху экрана */
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 20px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    flex-shrink: 0;
+    height: 65px; /* фиксированная высота хедера */
+}
+
+/* Логотип */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+    .logo h1 {
+        font-size: 30px;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0;
+        font-family: 'Actay Wide', sans-serif;
+    }
+
+/* Панель веществ */
+.pollutants-bar {
+    display: flex;
+    gap: 8px;
+    background: #f8fafc;
+    padding: 8px 16px;
+    border-radius: 9999px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+    .pollutants-bar span {
+        padding: 8px 25px;
+        border-radius: 30px;
+        cursor: pointer;
+        font-size: 20px;
+        font-weight: 600;
+        color: #475569;
+        white-space: nowrap;
+
+
+
+    }
+
+        .pollutants-bar span:hover {
+            background: #e2e8f0;
+        }
+
+        .pollutants-bar span.active {
+            background: #22c55e;
+            color: white;
+        }
+
+/* ========== ОСНОВНОЙ КОНТЕЙНЕР ========== */
+.kuda-main {
+    display: flex;
+    height: calc(100vh - 60px); /* отнимаем высоту хедера + небольшой отступ */
+    margin-top: 60px; /* ← создаёт отступ между хедером и контентом */
+    padding: 0 12px 12px 12px; /* отступы по бокам и снизу */
+    gap: 12px;
+    overflow: hidden;
+    font-family: 'Actay Wide', sans-serif;
+}
+
+/* ========== ЛЕВАЯ ПАНЕЛЬ ========== */
+.left-panel {
+    width: 285px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    flex-shrink: 0;
+    height: 97%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 10px 20px;
+}
+
+.left-panel-content {
+    flex: 0;
+    padding: 10px 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+}
+/* Поиск */
+.search-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    padding: 10px
+}
+
+    .search-bar input {
+        flex: 1;
+        padding: 10px 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
+        font-family: 'Actay', sans-serif;
+    }
+
+        .search-bar input:focus {
+            border-color: #3b82f6;
+        }
+
+    .search-bar button {
+        padding: 8px 14px;
+        background: #f1f5f9;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background 0.2s;
+    }
+
+        .search-bar button:hover {
+            background: #e2e8f0;
+        }
+
+/* Статус блок с переключателями */
+.status-block {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 16px;
+}
+
+.toggle-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+}
+
+    .toggle-item span {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1e293b;
+        font-family: 'Actay', sans-serif;
+    }
+
+/* Зеленый переключатель */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+}
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: 0.3s;
+    border-radius: 24px;
+}
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.3s;
+        border-radius: 50%;
+    }
+
+.switch input:checked + .slider {
+    background-color: #4caf50;
+}
+
+    .switch input:checked + .slider:before {
+        transform: translateX(24px);
+    }
+
+/* Блок логина */
+.login-block {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.login-form .form-group {
+    margin-bottom: 12px;
+}
+
+.login-form label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: #475569;
+    font-family: 'Actay', sans-serif;
+}
+
+.login-form input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 13px;
+    outline: none;
+    font-family: 'Actay', sans-serif;
+}
+
+    .login-form input:focus {
+        border-color: #3b82f6;
+    }
+
+.login-button {
+    width: 100%;
+    padding: 10px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s;
+    font-family: 'Actay', sans-serif;
+}
+
+    .login-button:hover {
+        background: #2563eb;
+    }
+
+/* Сценарии */
+/* Кнопки сценариев */
+/* ========== СЦЕНАРИИ — КНОПКИ ВЕРТИКАЛЬНО ========== */
+.scenarios-block h3 {
+    margin-bottom: 14px;
+    font-size: 17px;
+    font-weight: 700;
+    color: #1e293b;
+    font-family: 'Actay Wide', sans-serif;
+}
+
+/* Контейнер с кнопками */
+/* ========== СЦЕНАРИИ — КНОПКИ ВЕРТИКАЛЬНО ========== */
+.scenarios-block h3 {
+    margin-bottom: 14px;
+    font-size: 17px;
+    font-weight: 700;
+    color: #1e293b;
+    font-family: 'Actay Wide', sans-serif;
+}
+
+/* Контейнер кнопок */
+.scenario-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Все кнопки одинаковые по умолчанию */
+.scenario-btn {
+    width: 100%;
+    padding: 13px 16px;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: 'Actay Wide', sans-serif;
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+    /* При наведении — все кнопки становятся зелёными */
+    .scenario-btn:hover {
+        background: #22c55e;
+        color: white;
+        transform: translateY(-1px);
+        font-family: 'Actay Wide', sans-serif;
+    }
+
+/* Если хочешь, чтобы "Открыть" выглядела чуть выделеннее по умолчанию */
+#btn-open {
+    font-weight: 700; /* можно убрать, если не нужно */
+    font-family: 'Actay Wide', sans-serif;
+}
+
+/* Список источников */
+.sources-list {
+    margin-top: 16px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.source-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    transition: background 0.2s;
+}
+
+    .source-item:hover {
+        background: #f1f5f9;
+    }
+
+.source-info {
+    flex: 1;
+}
+
+    .source-info strong {
+        font-size: 14px;
+        display: block;
+        margin-bottom: 4px;
+        color: #1e293b;
+        font-family: 'Actay', sans-serif;
+    }
+
+    .source-info small {
+        font-size: 11px;
+        color: #64748b;
+        display: inline-block;
+        font-family: 'Actay', sans-serif;
+    }
+
+.source-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.small-btn {
+    padding: 6px 8px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+    .small-btn:hover {
+        background: #f1f5f9;
+    }
+
+    .small-btn.danger:hover {
+        background: #fee2e2;
+        border-color: #fecaca;
+    }
+
+
+/* ========== СЕКЦИЯ КАРТЫ ========== */
+.map-section {
+    flex: 1;
+    height: 97%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+#map {
+    flex: 1;
+    border-radius: 16px;
+    min-height: 50;
+}
+
+/* ========== ОВЕРЛЕЙ (ПРАВАЯ ПАНЕЛЬ) ========== */
+.scenario-overlay {
+    position: absolute;
+    top: 100px;
+    right: 15px;
+    width: 380px;
+    max-height: calc(100% - 68px);
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    z-index: 200;
+    overflow-y: auto;
+}
+
+/* Убираем крестик в оверлее */
+.scenario-header .close-overlay-btn {
+    display: none;
+}
+
+.scenario-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    background: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+    .scenario-header h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #1e293b;
+        font-family: 'Actay Wide', sans-serif;
+    }
+
+/* Сворачиваемые секции */
+.collapse-section {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.collapse-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+    .collapse-header:hover {
+        background: #f8fafc;
+    }
+
+.collapse-icon {
+    font-size: 12px;
+    color: #64748b;
+    transition: transform 0.2s;
+}
+
+.collapse-section.expanded .collapse-icon {
+    transform: rotate(90deg);
+}
+
+.collapse-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1e293b;
+    font-family: 'Actay', sans-serif;
+}
+
+.collapse-badge {
+    margin-left: auto;
+    background: #e2e8f0;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #475569;
+    font-family: 'Actay', sans-serif;
+}
+
+.collapse-content {
+    display: none;
+    padding: 0 20px 20px 20px;
+}
+
+.collapse-section.expanded .collapse-content {
+    display: block;
+}
+
+/* Форма добавления источника */
+.source-form-container {
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 14px;
+}
+
+    .form-group label {
+        display: block;
+        font-size: 12px;
+        font-weight: 500;
+        margin-bottom: 6px;
+        color: #475569;
+        font-family: 'Actay', sans-serif;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        font-size: 13px;
+        outline: none;
+        transition: border-color 0.2s;
+        font-family: 'Actay', sans-serif;
+    }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #3b82f6;
+        }
+
+.form-row-2 {
+    display: flex;
+    gap: 12px;
+}
+
+    .form-row-2 .form-group {
+        flex: 1;
+    }
+
+/* Кнопки типов источников */
+.source-type-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.mini-btn {
+    flex: 1;
+    padding: 8px 10px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s;
+    font-family: 'Actay', sans-serif;
+}
+
+    .mini-btn:hover {
+        background: #e2e8f0;
+    }
+
+    .mini-btn.active {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        color: white;
+    }
+
+/* Статус рисования */
+.drawing-status {
+    background: #fef3c7;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    color: #d97706;
+    margin: 12px 0;
+    font-family: 'Actay', sans-serif;
+}
+
+/* Кнопки формы */
+.form-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.btn-draw,
+.btn-cancel {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    font-family: 'Actay', sans-serif;
+}
+
+.btn-draw {
+    background: #10b981;
+    color: white;
+}
+
+    .btn-draw:hover {
+        background: #059669;
+    }
+
+.btn-cancel {
+    background: #ef4444;
+    color: white;
+}
+
+    .btn-cancel:hover {
+        background: #dc2626;
+    }
+
+/* Список источников в оверлее */
+.sources-list-overlay {
+    margin-top: 20px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 16px;
+}
+
+.sources-header {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #1e293b;
+    font-family: 'Actay', sans-serif;
+}
+
+.overlay-source-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 12px;
+    margin-bottom: 8px;
+}
+
+.overlay-source-info {
+    flex: 1;
+}
+
+    .overlay-source-info strong {
+        font-size: 13px;
+        display: block;
+        margin-bottom: 4px;
+        color: #1e293b;
+        font-family: 'Actay', sans-serif;
+    }
+
+    .overlay-source-info small {
+        font-size: 10px;
+        color: #64748b;
+        display: block;
+        margin-top: 2px;
+        font-family: 'Actay', sans-serif;
+    }
+
+.overlay-delete-btn {
+    padding: 6px 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+    .overlay-delete-btn:hover {
+        background: #fee2e2;
+    }
+
+/* Погодные условия */
+.weather-controls {
+    padding: 4px 0;
+}
+
+.compass {
+    display: inline-block;
+    margin-left: 10px;
+    width: 32px;
+    height: 32px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.compass-arrow {
+    display: inline-block;
+    font-size: 24px;
+    transition: transform 0.3s;
+}
+
+.apply-btn {
+    width: 100%;
+    padding: 10px;
+    background: #8b5cf6;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 12px;
+    transition: background 0.2s;
+    font-family: 'Actay', sans-serif;
+}
+
+    .apply-btn:hover {
+        background: #7c3aed;
+    }
+
+/* Параметры модели */
+.model-controls {
+    padding: 4px 0;
+}
+
+.checkbox-group {
+    display: flex;
+    gap: 16px;
+    margin: 12px 0;
+}
+
+    .checkbox-group label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: normal;
+        cursor: pointer;
+        font-family: 'Actay', sans-serif;
+    }
+
+.run-simulation-btn {
+    width: 100%;
+    padding: 12px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 12px;
+    transition: background 0.2s;
+    font-family: 'Actay Wide', sans-serif;
+}
+
+    .run-simulation-btn:hover {
+        background: #dc2626;
+    }
+
+/* ========== ТАЙМЛАЙН (ЗЕЛЕНЫЙ ПОЛЗУНОК) ========== */
+.timeline-block {
+    margin-top: 12px;
+    margin-bottom: 0;
+    flex-shrink: 0; /* не сжимается */
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 8px 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.time-ticks {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+    .time-ticks span {
+        font-size: 10px;
+        color: #64748b;
+        font-family: 'Actay', sans-serif;
+    }
+
+.timeline-slider {
+    width: 100%;
+}
+
+    .timeline-slider input {
+        width: 100%;
+        height: 4px;
+        border-radius: 2px;
+        background: #e2e8f0;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+        /* Зеленый ползунок */
+        .timeline-slider input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #4caf50;
+            cursor: pointer;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            border: 2px solid white;
+        }
+
+            .timeline-slider input::-webkit-slider-thumb:hover {
+                transform: scale(1.2);
+                background: #45a049;
+            }
+
+        .timeline-slider input::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #4caf50;
+            cursor: pointer;
+            border: 2px solid white;
+        }
+
+        /* Зеленый трек */
+        .timeline-slider input::-webkit-slider-runnable-track {
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+        }
+
+        .timeline-slider input:focus {
+            outline: none;
+        }
+
+.current-time {
+    text-align: center;
+    margin-top: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #4caf50;
+    font-family: 'Actay', sans-serif;
+    letter-spacing: 0.5px;
+}
+
+/* ========== СКРОЛЛБАР ========== */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #e2e8f0;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border-radius: 3px;
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
+    }
+
+/* ========== АДАПТИВНОСТЬ ========== */
+@media (max-width: 900px) {
+    .left-panel {
+        width: 280px;
+    }
+
+    .scenario-overlay {
+        width: 320px;
+    }
+
+    .pollutants-bar span {
+        padding: 4px 10px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .left-panel {
+        display: none;
+    }
+
+    .scenario-overlay {
+        width: calc(100% - 24px);
+        right: 12px;
+        left: 12px;
+    }
+
+    .pollutants-bar {
+        display: none;
+    }
+}
+
+/* ========== РЕЖИМЫ (ОДИН ПЕРЕКЛЮЧАТЕЛЬ) ========== */
+.mode-switcher {
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.mode-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 4px;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+    .mode-option:not(:last-child) {
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+/* Переключатель */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 28px;
+}
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #e2e8f0;
+    transition: .3s;
+    border-radius: 28px;
+}
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 22px;
+        width: 22px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .3s;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+
+.switch input:checked + .slider {
+    background-color: #22c55e;
+}
+
+    .switch input:checked + .slider:before {
+        transform: translateX(24px);
+    }
+
+/* Логин блок */
+.login-block {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.login-form .form-group {
+    margin-bottom: 12px;
+}
+
+.login-form input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 14px;
+    background: #f8fafc;
+    font-family: 'Actay', sans-serif;
+
+}
+
+.login-button {
+    width: 100%;
+    padding: 14px;
+    background: #22c55e;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    font-family: 'Actay Wide', sans-serif;
+}
+
+/* Сценарии */
+.scenario-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.scenario-btn {
+    flex: 1;
+    min-width: 110px;
+    padding: 10px 16px;
+    background: #f1f5f9;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* ========== ПЕРЕКЛЮЧАТЕЛЬ С ПОДСВЕТКОЙ АКТИВНОГО РЕЖИМА ========== */
+.simulator-mode-block {
+    background: white;
+    border-radius: 20px;
+    padding: 24px 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+    text-align: center;
+}
+
+.mode-title,
+.mode-subtitle {
+    font-size: 15.5px;
+    font-weight: 600;
+    transition: color 0.3s ease;
+    margin: 8px 0;
+}
+
+/* Состояние по умолчанию (переключатель выключен) */
+#current-state-text {
+    color: #1e293b; /* чёрный — активно */
+}
+
+#simulator-text {
+    color: #64748b; /* серый */
+}
+
+/* Когда переключатель ВКЛЮЧЕН */
+#mode-block.simulator-active #current-state-text {
+    color: #64748b; /* серый */
+}
+
+#mode-block.simulator-active #simulator-text {
+    color: #1e293b; /* чёрный — активно */
+}
+
+/* Большой зелёный переключатель */
+.big-green-toggle {
+    position: relative;
+    display: inline-block;
+    width: 82px;
+    height: 42px;
+    margin: 12px 0;
+}
+
+    .big-green-toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+.big-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #e2e8f0;
+    transition: .4s;
+    border-radius: 50px;
+}
+
+    .big-slider:before {
+        position: absolute;
+        content: "";
+        height: 34px;
+        width: 34px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+    }
+
+.big-green-toggle input:checked + .big-slider {
+    background-color: #22c55e;
+}
+
+    .big-green-toggle input:checked + .big-slider:before {
+        transform: translateX(40px);
+    }

@@ -1,134 +1,276 @@
-﻿<!doctype html>
+﻿﻿
+<!doctype html>
 <html lang="ru">
 <head>
     <meta charset="utf-8">
-    <title>Система моделирования выбросов вредных веществ</title>
+    <title>КудаДым — Моделирование выбросов</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="{{ url_for('static', path='css/base.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', path='css/index.css') }}">
 
-    <script src="https://api-maps.yandex.ru/2.1/?apikey={{config.YMAPS_API_KEY}}&lang={{config.YMAPS_LANG}}"
-            type="text/javascript"></script>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/kudadym.css') }}">
+
+    <script src="https://api-maps.yandex.ru/2.1/?apikey={{config.YMAPS_API_KEY}}&lang=ru_RU" type="text/javascript"></script>
     <script src="{{ url_for('static', path='js/map-graphics.js') }}"></script>
-    <script src="{{ url_for('static', path='js/main.js') }}"></script>
+    <script src="{{ url_for('static', path='js/main-kudadym.js') }}"></script>
 </head>
 <body>
-<header class="header">
-    <div class="title-container">
-        <img src="{{ url_for('static', path='img/logo_white.png') }}" alt="Логотип" width="72" height="48.86">
-        <h1 class="site-title">Система моделирования выбросов вредных веществ</h1>
-    </div>
 
-    <nav class="navbar">
-        <a href="{{ url_for('index') }}" class="active">Мониторинг</a>
-        <a href="{{ url_for('history') }}">История</a>
-        <a href="{{ url_for('forecasting') }}">Прогнозирование</a>
-        <a href="{{ url_for('recommendations') }}">Рекомендации</a>
-        <a href="{{ url_for('enterprise') }}">Режим предприятия</a>
-        <a href="{{ url_for('login') }}">Авторизация</a>
-    </nav>
-</header>
-<main class="container">
-    <aside class="panel">
-        <h2>Интересующее вещество</h2>
-        <div class="form-row">
-            <select id="substance-select" class="select"
-                    style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; font-size: 14px; background: white;">
-            </select>
+    <header class="kuda-header">
+        <div class="logo">
+            <img src="{{ url_for('static', path='img/logo.png') }}" alt="КудаДым" width="71" height="48">
+            <h1>КудаДым</h1>
         </div>
 
-        <h2>Тип источника</h2>
-        <select id="source-type" class="select styled"
-                style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; font-size: 14px; background: white;">
-            <option value="point">Точечный (труба)</option>
-            <option value="line">Линейный (дорога/конвейер)</option>
-            <option value="polygon">Площадной (склад/территория)</option>
-        </select>
-        <button id="add-source-btn" class="btn" style="margin-bottom: 20px;">Добавить источник на карту</button>
-
-        <!-- Список добавленных источников -->
-        <div id="sources-list" style="margin-bottom: 20px;"></div>
-
-        <h2>Ваше местоположение:</h2>
-        <div class="form-row">
-            <label><input type="checkbox"> Выбрать самостоятельно</label>
+        <div class="pollutants-bar">
+            <span data-substance="SO2">SO₂</span>
+            <span data-substance="NO">NO</span>
+            <span data-substance="NO2">NO₂</span>
+            <span data-substance="CO" class="active">CO</span>
+            <span data-substance="H2S">H₂S</span>
+            <span data-substance="PM25">PM2.5</span>
+            <span data-substance="PM10">PM10</span>
         </div>
-        <button class="btn">Найти меня на карте</button>
+    </header>
 
-        <div class="legend">
-            <h3>Легенда</h3>
-            <div class="row"><span class="swatch ok"></span> Допустимые концентрации</div>
-            <div class="row"><span class="swatch warn"></span> Близкие к ПДК значения</div>
-            <div class="row"><span class="swatch pdq"></span> Значения на уровне ПДК</div>
-            <div class="row"><span class="swatch danger"></span> Превышение ПДК</div>
-        </div>
-
-        <button class="btn" id="toggle-heatmap-btn">Скрыть/Показать загрязнения</button>
-        <button class="btn">Обновить карту</button>
-    </aside>
-
-    <section class="card">
-        <div class="map-header">
-            <div class="map-meta">
-                Ветер: 1,9 м/с, В Давление: 764 мм рт. ст. Влажность: 61% Дальность видимости: 61 км Изотермия: не
-                наблюдается
+    <main class="kuda-main">
+        <!-- Левая панель -->
+        <aside class="left-panel">
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Поиск и выбор мест">
+                <button id="search-btn">🔍</button>
             </div>
-        </div>
-        <!-- Панель управления погодой -->
-        <div class="weather-controls"
-             style="padding: 10px; background: rgba(255,255,255,0.9); border-radius: 8px; margin-bottom: 10px; display: flex; gap: 10px; justify-content: center;">
-            <button id="toggleWind" class="btn"
-                    style="background: linear-gradient(180deg, #3498db, #2980b9); color: white; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer;">
-                Ветер: Вкл
-            </button>
-            <button id="togglePrecip" class="btn"
-                    style="background: linear-gradient(180deg, #27ae60, #229954); color: white; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer;">
-                Осадки: Вкл
-            </button>
-            <button id="updateWeather" class="btn"
-                    style="background: linear-gradient(180deg, #f39c12, #e67e22); color: white; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer;">
-                Обновить погоду
-            </button>
-        </div>
 
-        <div id="map" class="map" data-map-role="monitoring"></div>
+            <div class="simulator-mode-block" id="mode-block">
+                <div class="mode-title" id="current-state-text">Текущее состояние</div>
 
-        <div class="timeline-wrap">
-            <div class="time-ticks">
-                <span>09:30</span><span>09:40</span><span>09:50</span>
-                <span>10:00</span><span>10:10</span><span>10:20</span>
-                <span>Сейчас</span><span>10:40</span><span>10:50</span>
-                <span>11:00</span><span>11:10</span><span>11:20</span><span>11:30</span>
+                <label class="big-green-toggle">
+                    <input type="checkbox" id="simulator-mode">
+                    <span class="big-slider"></span>
+                </label>
+
+                <div class="mode-subtitle" id="simulator-text">Режим симулятора</div>
             </div>
-            <div class="timeline">
-                <div class="handle">
-                    <div class="triangle"></div>
-                    <div class="dot"></div>
+
+
+            <!-- Блок логина -->
+            <div id="login-block" class="login-block" style="display: none;">
+                <div class="login-form">
+                    <input type="text" id="login-input" placeholder="Введите логин">
+                    <input type="password" id="password-input" placeholder="Введите пароль">
+                    <button id="login-btn" class="login-button">Вход в систему</button>
                 </div>
             </div>
-        </div>
-    </section>
-</main>
 
-<div id="confirm-modal" class="modal"
-     style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
-    <div class="modal-content"
-         style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 300px; border-radius: 8px; text-align: center;">
-        <div class="modal-header">
-            <h3 class="modal-title">Удаление источника</h3>
-        </div>
-        <p>Вы уверены, что хотите удалить этот источник?</p>
-        <div class="modal-footer" style="margin-top: 20px; display: flex; justify-content: space-around;">
-            <button class="modal-btn" id="cancel-delete"
-                    style="background: #95a5a6; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">
-                Отмена
-            </button>
-            <button class="modal-btn" id="confirm-delete"
-                    style="background: #e74c3c; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">
-                Удалить
-            </button>
-        </div>
-    </div>
-</div>
+            <!-- Сценарии -->
+            <div class="scenarios-block" id="scenarios-block" style="display: none;">
+                <h3>Сценарии</h3>
+                <div class="scenario-buttons">
+                    <button class="scenario-btn" id="btn-open">Открыть</button>
+                    <button class="scenario-btn" id="btn-add">Добавить</button>
+                    <button class="scenario-btn" id="btn-compare">Сравнить</button>
+                </div>
+            </div>
+
+            <div id="sources-list" class="sources-list" style="display: none;"></div>
+        </aside>
+
+        <!-- Карта + Оверлей -->
+        <section class="map-section">
+            <div id="map" class="map"></div>
+
+            <!-- Правый оверлей -->
+            <div class="scenario-overlay" id="scenario-overlay" style="display: none;">
+                <div class="scenario-header">
+                    <h3 id="scenario-name">Гость 05.04.2026 №10</h3>
+                    <!-- Крестик удален -->
+                </div>
+
+                <!-- Секция 1: Источники -->
+                <div class="collapse-section" id="sources-section">
+                    <div class="collapse-header">
+                        <span class="collapse-icon">▶</span>
+                        <span class="collapse-title">📌 Источники выбросов</span>
+                        <span class="collapse-badge" id="sources-count">0</span>
+                    </div>
+                    <div class="collapse-content" id="sources-content">
+
+                        <div class="source-form-container">
+                            <div class="form-group">
+                                <label>Название источника</label>
+                                <input type="text" id="overlay-source-name" placeholder="например: Труба котельной" value="q123">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Тип источника</label>
+                                <div class="source-type-buttons">
+                                    <button type="button" class="mini-btn source-type-btn active" data-type="point">📍 Точечный</button>
+                                    <button type="button" class="mini-btn source-type-btn" data-type="line">📏 Линейный</button>
+                                    <button type="button" class="mini-btn source-type-btn" data-type="polygon">🗺️ Площадной</button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Вещество</label>
+                                <select id="overlay-source-substance">
+                                    <option value="CO" selected>CO</option>
+                                    <option value="SO2">SO₂</option>
+                                    <option value="NO">NO</option>
+                                    <option value="NO2">NO₂</option>
+                                    <option value="PM25">PM2.5</option>
+                                    <option value="PM10">PM10</option>
+                                </select>
+                            </div>
+
+                            <div class="form-row-2">
+                                <div class="form-group">
+                                    <label>Высота (м)</label>
+                                    <input type="number" id="overlay-source-height" value="40" step="5">
+                                </div>
+                                <div class="form-group">
+                                    <label>Интенсивность (г/с)</label>
+                                    <input type="number" id="overlay-source-emission" value="3.7" step="0.5">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Категория</label>
+                                <select id="overlay-source-category">
+                                    <option value="industrial" selected>🏭 Промышленный</option>
+                                    <option value="domestic">🏠 Бытовой</option>
+                                    <option value="transport">🚗 Транспортный</option>
+                                </select>
+                            </div>
+
+                            <div id="drawing-status-overlay" style="display: none;" class="drawing-status">
+                                ⚡ <span id="drawing-status-text-overlay">Линейный - клики для точек, двойной клик для завершения</span>
+                            </div>
+
+                            <div class="form-buttons">
+                                <button class="btn-draw" id="start-drawing-overlay-btn">🎨 Рисовать на карте</button>
+                                <button class="btn-cancel" id="cancel-drawing-overlay-btn" style="display: none;">❌ Отмена</button>
+                            </div>
+                        </div>
+
+                        <div class="sources-list-overlay">
+                            <div class="sources-header">Список источников</div>
+                            <div id="overlay-sources-container">
+                                <!-- Список источников будет добавлен динамически -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Секция 2: Погода -->
+                <div class="collapse-section">
+                    <div class="collapse-header">
+                        <span class="collapse-icon">▶</span>
+                        <span class="collapse-title">🌤️ Погодные условия</span>
+                    </div>
+                    <div class="collapse-content">
+                        <div class="weather-controls">
+                            <div class="form-group">
+                                <label>Скорость ветра (м/с)</label>
+                                <input type="range" id="wind-speed" min="0" max="15" step="0.5" value="3">
+                                <span id="wind-speed-value">3.0</span>
+                            </div>
+                            <div class="form-group">
+                                <label>Температура (°C)</label>
+                                <input type="range" id="temperature" min="-30" max="40" step="1" value="20">
+                                <span id="temperature-value">20</span>
+                            </div>
+                            <div class="form-group">
+                                <label>Давление (гПа)</label>
+                                <input type="range" id="pressure" min="950" max="1050" step="1" value="1013">
+                                <span id="pressure-value">1013</span>
+                            </div>
+                            <div class="form-group">
+                                <label>Направление ветра</label>
+                                <select id="wind-direction">
+                                    <option value="0">С (0°)</option>
+                                    <option value="45">СВ (45°)</option>
+                                    <option value="90">В (90°)</option>
+                                    <option value="135">ЮВ (135°)</option>
+                                    <option value="180" selected>Ю (180°)</option>
+                                    <option value="225">ЮЗ (225°)</option>
+                                    <option value="270">З (270°)</option>
+                                    <option value="315">СЗ (315°)</option>
+                                </select>
+                                <div class="compass">
+                                    <div class="compass-arrow" id="compass-arrow">↑</div>
+                                </div>
+                            </div>
+                            <button id="apply-weather-btn" class="apply-btn">Применить</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Секция 3: Параметры модели -->
+                <div class="collapse-section">
+                    <div class="collapse-header">
+                        <span class="collapse-icon">▶</span>
+                        <span class="collapse-title">🧮 Параметры модели</span>
+                    </div>
+                    <div class="collapse-content">
+                        <div class="model-controls">
+                            <div class="form-group">
+                                <label>Модель рассеивания</label>
+                                <select id="dispersion-model">
+                                    <option value="gaussian">Гауссова (стандарт)</option>
+                                    <option value="lagrangian">Лагранжева</option>
+                                    <option value="eulerian">Эйлерова</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Разрешение сетки (м)</label>
+                                <input type="number" id="grid-resolution" value="100" step="10">
+                            </div>
+                            <div class="form-group">
+                                <label>Шаг по времени (с)</label>
+                                <input type="number" id="time-step" value="60" step="10">
+                            </div>
+                            <div class="form-group">
+                                <label>Радиус расчёта (км)</label>
+                                <input type="range" id="calc-radius" min="1" max="50" value="10" step="1">
+                                <span id="calc-radius-value">10</span>
+                            </div>
+                            <div class="checkbox-group">
+                                <label>
+                                    <input type="checkbox" id="dry-deposition">
+                                    Сухая депозиция
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="wet-deposition">
+                                    Влажная депозиция
+                                </label>
+                            </div>
+                            <button class="run-simulation-btn" id="run-simulation-btn">🚀 Запустить расчёт</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Таймлайн -->
+            <div class="timeline-block">
+                <div class="time-ticks">
+                    <span>14:00</span><span>14:30</span><span>15:00</span><span>15:30</span>
+                    <span>16:00</span><span>16:30</span><span>17:00</span><span>17:30</span>
+                    <span>18:00</span><span>18:30</span>
+                </div>
+                <div class="timeline-slider">
+                    <input type="range" id="time-slider" min="0" max="9" value="5" step="1">
+                </div>
+                <div class="current-time" id="current-time-display">16:30</div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Инициализация обработчиков после загрузки DOM
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof initOverlaySourceHandlers === 'function') initOverlaySourceHandlers();
+            if (typeof initWeatherHandlers === 'function') initWeatherHandlers();
+            if (typeof initModelHandlers === 'function') initModelHandlers();
+        });
+    </script>
 </body>
 </html>
