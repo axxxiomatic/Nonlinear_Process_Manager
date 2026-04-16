@@ -7,22 +7,17 @@ TEMPLATES_DIR = BASE_DIR / "templates"
 STATIC_DIR = BASE_DIR / "static"
 
 
-
-
 class Settings(BaseSettings):
-    # --- База данных ---
     database_hostname: str
     database_port: str
     database_password: str
     database_name: str
     database_username: str
 
-    # --- Авторизация (На будущее) ---
-#    secret_key: str
-#    algorithm: str
-#    access_token_expiration_minutes: int
+    secret_key: str
+    algorithm: str
+    access_token_expiration_minutes: int
 
-    # --- Yandex карты ---
     ymaps_api_key: str
     ymaps_lang: str = "ru_RU"
     yweather_api_key: str
