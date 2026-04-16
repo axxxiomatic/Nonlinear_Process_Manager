@@ -1,7 +1,8 @@
 from .base import Base
-from sqlalchemy import Column, String, SmallInteger, func, TIMESTAMP, Float
+from sqlalchemy import String, SmallInteger, func, TIMESTAMP, Float
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
+
 
 class SimulationParams(Base):
     __tablename__ = "simulation_params"
