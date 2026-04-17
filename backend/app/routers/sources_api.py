@@ -4,6 +4,7 @@ from ..core.emissions_calculation_math.state import pollution_state
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..database import get_db
 from ..schemas.sources import SourcesCreate, SourcesResponse
+from ..core.auth import get_current_user
 from typing import List
 
 router = APIRouter(tags=['sources'], prefix="/api/sources")
@@ -18,7 +19,7 @@ async def get_all_sources(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def create_source(new_source: SourcesCreate, db: AsyncSession = Depends(get_db)):
+async def create_source(new_source: SourcesCreate, db: AsyncSession = Depends(get_db), current_user: int = Depends(get_current_user)):
     source_service = SourceService(db)
     result = await source_service.add_source(new_source)
     print(result)
@@ -41,4 +42,4 @@ async def delete_source(id: int, db: AsyncSession = Depends(get_db)):
     # СБРАСЫВАЕМ КЭШ ЛЭЙАУТА ПОСЛЕ ДОБАВЛЕНИЯ ИСТОЧНИКА
     pollution_state.invalidate_sources()
 
-    return result
+    return None
