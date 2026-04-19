@@ -1,15 +1,19 @@
 from .base import Base
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import Integer, String, Null, func, TIMESTAMP, JSON, Enum as SQLEnum
+
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Integer, String, func, TIMESTAMP, JSON, Enum as SQLEnum
 from enum import Enum
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .scenarios import Scenarios
 
 
 class RolesTypesEnum(str, Enum):
     professor = "professor",
     student = "student",
-    admin = "admin",
+    admin = "admin"
 
 
 class Users(Base):
@@ -24,4 +28,6 @@ class Users(Base):
                                                  nullable=False)
     password: Mapped[str] = mapped_column(String, nullable=False)
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.now())
-    group: Mapped[Any] = mapped_column(JSON, nullable=False)
+    group: Mapped[list] = mapped_column(JSON, nullable=False)
+
+    scenarios: Mapped[list["Scenarios"]] = relationship(back_populates="user")

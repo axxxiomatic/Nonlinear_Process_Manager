@@ -1,6 +1,10 @@
 from sqlalchemy import String, SmallInteger, Float
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from typing import TYPE_CHECKING
 from .base import Base
+
+if TYPE_CHECKING:
+    from .sources import Sources
 
 
 class Substances(Base):
@@ -14,3 +18,6 @@ class Substances(Base):
     settling_velocity: Mapped[float] = mapped_column(Float, nullable=False)  # скорость оседания
     # hazard_level = Column(Integer, nullable=False) - может понадобиться если будем пилить справочную информацию
     # custom_color=Column(String, default="#E74C3C")-если захочется шлейф задавать кастомным цветом для каждого вещества
+
+
+    source: Mapped[list["Sources"]] = relationship(back_populates="substance")

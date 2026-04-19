@@ -3,7 +3,11 @@ from sqlalchemy import String, Integer, func, TIMESTAMP, Float, JSON, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from enum import Enum
 from datetime import datetime
-from .substances import Substances
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .substances import Substances
+    from .scenarios import Scenarios
 
 
 class SourceTypeEnum(str, Enum):
@@ -32,10 +36,18 @@ class Sources(Base):
     substance_id: Mapped[int] = mapped_column(SmallInteger,
                                               ForeignKey("substances.id",
                                                          ondelete="CASCADE"),
-                                              nullable=False)
-    substance: Mapped["Substances"] = relationship()
-    coordinates: Mapped[list | None] = mapped_column(JSON, nullable=False)
+                                              nullable=False,
+                                              index=True)
+    scenario_id: Mapped[int] = mapped_column(Integer,
+                                             ForeignKey("scenarios.id",
+                                                        ondelete="CASCADE"),
+                                             nullable=False,
+                                             index=True)
+    coordinates: Mapped[list | None] = mapped_column(JSON)
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP,
                                                  server_default=func.now(),
                                                  index=True,
                                                  nullable=False)
+
+    scenario: Mapped["Scenarios"] = relationship(back_populates="source")
+    substance: Mapped["Substances"] = relationship(back_populates="source")
