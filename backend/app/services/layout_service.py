@@ -22,7 +22,6 @@ class LayoutService:
         self.source_service = SourceService(db)
         self.substance_service = SubstanceService(db)
 
-    # ── Геометрия тайла ──────────────────────────────────────────────────
     def get_tile_bounds(self, tx: int, ty: int, zoom: int):
         equator = 40075016.685578488
         tile_size = equator / (2 ** zoom)
@@ -33,7 +32,6 @@ class LayoutService:
         min_y = origin - (ty + 1) * tile_size
         return min_x, min_y, max_x, max_y
 
-    # ── Физика воздуха ───────────────────────────────────────────────────
     def _air_density(self, temperature_c: float, pressure_hpa: float) -> float:
 
         T_k = float(temperature_c) + 273.15
@@ -43,9 +41,9 @@ class LayoutService:
     def _air_viscosity_sutherland(self, temperature_c: float) -> float:
 
         T = float(temperature_c) + 273.15
-        mu0 = 1.716e-5  # Па·с при T0
-        T0 = 273.15  # К
-        S = 111.0  # К (константа Сазерленда для воздуха)
+        mu0 = 1.716e-5
+        T0 = 273.15
+        S = 111.0
         return mu0 * ((T / T0) ** 1.5) * (T0 + S) / (T + S)
 
     def _compute_weather_factors(
