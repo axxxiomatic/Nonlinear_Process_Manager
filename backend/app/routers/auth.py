@@ -13,6 +13,14 @@ router = APIRouter(tags=["Authentification"])
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     auth_service = AuthService(db)
     token = await auth_service.login(form_data)
+
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Email or Password",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
     return token
 
 

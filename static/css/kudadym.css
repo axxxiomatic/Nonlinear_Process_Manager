@@ -1160,3 +1160,26 @@ body {
     background: #e2e8f0;
     color: #475569;
 }
+
+/* ── Селект роли ─────────────────────────────────────────────*/
+.role-select {
+    padding: 8px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 7px;
+    font-size: 13px;
+    color: #1e293b;
+    background: #f8fafc;
+    outline: none;
+    width: 100%;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.role-select:focus {
+    border-color: #22c55e;
+    background: #fff;
+}
+
+/* Визуальное выделение выбранной роли */
+.role-select option[value="professor"] { color: #7c3aed; }
+.role-select option[value="student"]   { color: #0369a1; }

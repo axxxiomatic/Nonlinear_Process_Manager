@@ -489,6 +489,7 @@ function initAuthForms() {
     var regBtn = el('register-submit-btn');
     var pwdFld = el('login-password');
     var logOut = el('logout-btn');
+    var roleEl = el('reg-role');
 
     if (goReg) goReg.addEventListener('click', function() {
         var fl = el('form-login'); var fr = el('form-register');
@@ -504,29 +505,67 @@ function initAuthForms() {
         clearAuthErrors();
     });
 
-    if (addGrp) addGrp.addEventListener('click', function() {
-        var container = el('groups-container');
-        if (!container) return;
-        var row = document.createElement('div');
-        row.className = 'group-row';
-        row.innerHTML =
-            '<input type="text" class="group-input" placeholder="например: ИБ-102">' +
-            '<button type="button" class="btn-remove-group">✕</button>';
-        row.querySelector('.btn-remove-group').addEventListener('click', function() {
-            row.remove();
+    // Переключение UI групп при смене роли
+    if (roleEl) {
+        roleEl.addEventListener('change', function() {
+            updateGroupsUIForRole(roleEl.value);
         });
-        container.appendChild(row);
-    });
+        // Инициализировать при загрузке
+        updateGroupsUIForRole(roleEl.value);
+    }
+
+    if (addGrp) {
+        addGrp.addEventListener('click', function() {
+            var container = el('groups-container');
+            if (!container) return;
+            var row = document.createElement('div');
+            row.className = 'group-row';
+            row.innerHTML =
+                '<input type="text" class="group-input" placeholder="например: ИБ-102">' +
+                '<button type="button" class="btn-remove-group">✕</button>';
+            row.querySelector('.btn-remove-group').addEventListener('click', function() {
+                row.remove();
+            });
+            container.appendChild(row);
+        });
+    }
 
     if (logBtn) logBtn.addEventListener('click', handleLogin);
     if (regBtn) regBtn.addEventListener('click', handleRegister);
     if (pwdFld) pwdFld.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') handleLogin();
     });
-
-    // Выход
     if (logOut) logOut.addEventListener('click', handleLogout);
 }
+
+function updateGroupsUIForRole(role) {
+    var addGrpBtn   = el('add-group-btn');
+    var groupsLabel = el('groups-label');
+    var groupsBlock = el('groups-block');
+
+    // Студент: одна группа, кнопку "добавить" скрыть
+    // Преподаватель: несколько групп, кнопку "добавить" показать
+    if (role === 'professor') {
+        if (addGrpBtn)   addGrpBtn.style.display   = 'block';
+        if (groupsLabel) groupsLabel.innerHTML =
+            'Группы для ведения <span class="optional">(необязательно)</span>';
+    } else {
+        // student: одна группа — убрать лишние строки если были добавлены
+        if (addGrpBtn) addGrpBtn.style.display = 'none';
+        if (groupsLabel) groupsLabel.innerHTML =
+            'Группа <span class="required">*</span>';
+
+        // Оставить только одну строку
+        var container = el('groups-container');
+        if (container) {
+            var rows = container.querySelectorAll('.group-row');
+            for (var i = 1; i < rows.length; i++) {
+                rows[i].remove();
+            }
+        }
+    }
+}
+
 
 function handleLogout() {
     if (!confirm('Выйти из аккаунта?')) return;
@@ -609,30 +648,68 @@ function handleRegister() {
     var email      = (el('reg-email')            || {value:''}).value.trim();
     var password   = (el('reg-password')         || {value:''}).value;
     var passConf   = (el('reg-password-confirm') || {value:''}).value;
+    var roleEl     = el('reg-role');
+    var role       = roleEl ? roleEl.value : 'student';
 
+    // Собрать группы
     var groups = [];
     document.querySelectorAll('.group-input').forEach(function(inp) {
         var v = inp.value.trim();
         if (v) groups.push(v);
     });
 
-    if (!firstName || !lastName) { showAuthError(errEl, 'Введите имя и фамилию'); return; }
-    if (!email)                  { showAuthError(errEl, 'Введите email'); return; }
-    if (!password)               { showAuthError(errEl, 'Введите пароль'); return; }
-    if (password !== passConf)   { showAuthError(errEl, 'Пароли не совпадают'); return; }
-    if (groups.length === 0)     { showAuthError(errEl, 'Укажите хотя бы одну группу'); return; }
+    // Валидация
+    if (!firstName || !lastName) {
+        showAuthError(errEl, 'Введите имя и фамилию'); return;
+    }
+    if (!email) {
+        showAuthError(errEl, 'Введите email'); return;
+    }
+    if (!password) {
+        showAuthError(errEl, 'Введите пароль'); return;
+    }
+    if (password !== passConf) {
+        showAuthError(errEl, 'Пароли не совпадают'); return;
+    }
+
+    // Для студента группа обязательна и ровно одна
+    if (role === 'student') {
+        if (groups.length === 0) {
+            showAuthError(errEl, 'Укажите вашу группу'); return;
+        }
+        if (groups.length > 1) {
+            showAuthError(errEl, 'Студент может быть только в одной группе'); return;
+        }
+    }
+
+    // Для преподавателя группа не обязательна (он может вести несколько или ни одной)
+    if (groups.length === 0) {
+        // Заполним пустым массивом — бэкенд требует непустой, добавим заглушку
+        // Нет, лучше явно проверим что хотя бы одна группа указана
+        if (role === 'professor') {
+            groups = [''];   // разрешено — бэкенд может принять
+        }
+    }
 
     if (btn) { btn.disabled = true; btn.textContent = 'Регистрация…'; }
 
     apiRegister({
-        first_name: firstName, last_name: lastName,
+        first_name: firstName,
+        last_name:  lastName,
         patronymic: patronymic || null,
-        email: email, password: password,
-        role: 'student', group: groups
+        email:      email,
+        password:   password,
+        role:       role,
+        group:      groups
     }).then(function(result) {
         if (btn) { btn.disabled = false; btn.textContent = 'Зарегистрироваться'; }
-        if (!result) { showAuthError(errEl, 'Ошибка регистрации. Возможно, email уже занят.'); return; }
 
+        if (!result) {
+            showAuthError(errEl, 'Ошибка регистрации. Возможно, email уже занят.');
+            return;
+        }
+
+        // Автовход после регистрации
         return apiLogin(email, password).then(function(tokenData) {
             if (tokenData && tokenData.access_token) {
                 setToken(tokenData.access_token);

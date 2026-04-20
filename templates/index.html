@@ -64,6 +64,7 @@
 
             <div id="form-register" class="auth-form" style="display:none;">
                 <h4 class="auth-title">Регистрация</h4>
+
                 <div class="form-group">
                     <label>Имя <span class="required">*</span></label>
                     <input type="text" id="reg-firstname" placeholder="Иван">
@@ -88,17 +89,30 @@
                     <label>Подтверждение пароля <span class="required">*</span></label>
                     <input type="password" id="reg-password-confirm" placeholder="••••••••">
                 </div>
+
+                <!-- Роль -->
                 <div class="form-group">
-                    <label>Группа(ы) <span class="required">*</span></label>
+                    <label>Роль <span class="required">*</span></label>
+                    <select id="reg-role" class="role-select">
+                        <option value="student" selected>👨‍🎓 Студент</option>
+                        <option value="professor">👨‍🏫 Преподаватель</option>
+                    </select>
+                </div>
+
+                <!-- Группы -->
+                <div class="form-group" id="groups-block">
+                    <label id="groups-label">Группа(ы) <span class="required">*</span></label>
                     <div id="groups-container">
                         <div class="group-row">
                             <input type="text" class="group-input" placeholder="например: ИБ-101">
                         </div>
                     </div>
-                    <button type="button" id="add-group-btn" class="btn-add-group">
+                    <button type="button" id="add-group-btn" class="btn-add-group"
+                            style="display:none;">
                         ＋ Добавить группу
                     </button>
                 </div>
+
                 <div id="register-error" class="auth-error" style="display:none;"></div>
                 <button type="button" id="register-submit-btn" class="btn-auth-primary">
                     Зарегистрироваться
@@ -129,7 +143,8 @@
                 <div class="scenarios-dropdown-header">
                     <span>Доступные сценарии</span>
                     <button type="button" id="scenarios-dropdown-close"
-                            class="btn-close-dropdown">✕</button>
+                            class="btn-close-dropdown">✕
+                    </button>
                 </div>
                 <div id="scenarios-list" class="scenarios-list-inner"></div>
             </div>
@@ -172,11 +187,14 @@
                             <label>Тип источника</label>
                             <div class="source-type-buttons">
                                 <button type="button" class="mini-btn source-type-btn active"
-                                        data-type="point">📍 Точечный</button>
+                                        data-type="point">📍 Точечный
+                                </button>
                                 <button type="button" class="mini-btn source-type-btn"
-                                        data-type="line">📏 Линейный</button>
+                                        data-type="line">📏 Линейный
+                                </button>
                                 <button type="button" class="mini-btn source-type-btn"
-                                        data-type="polygon">🗺️ Площадной</button>
+                                        data-type="polygon">🗺️ Площадной
+                                </button>
                             </div>
                         </div>
                         <div class="form-group">
@@ -212,7 +230,8 @@
                                 🎨 Рисовать на карте
                             </button>
                             <button class="btn-cancel" id="cancel-drawing-overlay-btn"
-                                    style="display:none;">❌ Отмена</button>
+                                    style="display:none;">❌ Отмена
+                            </button>
                         </div>
                     </div>
                     <div class="sources-list-overlay">
