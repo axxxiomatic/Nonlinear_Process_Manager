@@ -264,13 +264,13 @@ a {
         box-shadow: 0 6px 12px rgba(240,122,42,0.5);
     }
 
-@media (max-width: 1100px) {
+@media (max-width: 1000px) {
     .container {
         grid-template-columns: 1fr;
         padding: 16px;
     }
 
     #map {
-        height: 560px;
+        height: 520px;
     }
 }

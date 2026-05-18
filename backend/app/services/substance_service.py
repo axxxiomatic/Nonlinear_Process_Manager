@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..repositories.substance import SubstancesRepository
 from ..schemas.substance import SubstanceCreate
 
+
 class SubstanceService:
     def __init__(self, db: AsyncSession):
         self.repository = SubstancesRepository(db)
@@ -17,4 +18,3 @@ class SubstanceService:
     async def add_substance(self, substance_schema: SubstanceCreate):
         result = await self.repository.add_substance(substance_schema)
         return result
-

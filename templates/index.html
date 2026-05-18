@@ -2,133 +2,366 @@
 <html lang="ru">
 <head>
     <meta charset="utf-8">
-    <title>Система моделирования выбросов вредных веществ</title>
+    <title>КудаДым — Моделирование выбросов</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{{ url_for('static', path='css/base.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', path='css/index.css') }}">
-
-    <script src="https://api-maps.yandex.ru/2.1/?apikey={{config.YMAPS_API_KEY}}&lang={{config.YMAPS_LANG}}"
+    <link rel="stylesheet" href="{{ url_for('static', path='css/kudadym.css') }}">
+    <script src="https://api-maps.yandex.ru/2.1/?apikey={{config.YMAPS_API_KEY}}&lang=ru_RU"
             type="text/javascript"></script>
     <script src="{{ url_for('static', path='js/map-graphics.js') }}"></script>
-    <script src="{{ url_for('static', path='js/main.js') }}"></script>
+    <script src="{{ url_for('static', path='js/main-kudadym.js') }}"></script>
 </head>
 <body>
-<header class="header">
-    <div class="title-container">
-        <img src="{{ url_for('static', path='img/logo_white.png') }}" alt="Логотип" width="72" height="48.86">
-        <h1 class="site-title">Система моделирования выбросов вредных веществ</h1>
+
+<header class="kuda-header">
+    <div class="logo">
+        <img src="{{ url_for('static', path='img/logo.png') }}" alt="КудаДым" width="71" height="48">
+        <h1>КудаДым</h1>
     </div>
-
-    <nav class="navbar">
-        <a href="{{ url_for('index') }}" class="active">Мониторинг</a>
-        <a href="{{ url_for('history') }}">История</a>
-        <a href="{{ url_for('forecasting') }}">Прогнозирование</a>
-        <a href="{{ url_for('recommendations') }}">Рекомендации</a>
-        <a href="{{ url_for('enterprise') }}">Режим предприятия</a>
-        <a href="{{ url_for('login') }}">Авторизация</a>
-    </nav>
+    <div class="pollutants-bar" id="pollutants-bar">
+        <span style="color:#aaa;font-size:13px;">Загрузка веществ…</span>
+    </div>
 </header>
-<main class="container">
-    <aside class="panel">
-        <h2>Интересующее вещество</h2>
-        <div class="form-row">
-            <select id="substance-select" class="select"
-                    style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; font-size: 14px; background: white;">
-            </select>
+
+<main class="kuda-main">
+    <aside class="left-panel">
+
+        <!-- Поиск -->
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Поиск и выбор мест">
+            <button id="search-btn">🔍</button>
         </div>
 
-        <h2>Тип источника</h2>
-        <select id="source-type" class="select styled"
-                style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; font-size: 14px; background: white;">
-            <option value="point">Точечный (труба)</option>
-            <option value="line">Линейный (дорога/конвейер)</option>
-            <option value="polygon">Площадной (склад/территория)</option>
-        </select>
-        <button id="add-source-btn" class="btn" style="margin-bottom: 20px;">Добавить источник на карту</button>
-
-        <!-- Список добавленных источников -->
-        <div id="sources-list" style="margin-bottom: 20px;"></div>
-
-        <h2>Ваше местоположение:</h2>
-        <div class="form-row">
-            <label><input type="checkbox"> Выбрать самостоятельно</label>
-        </div>
-        <button class="btn">Найти меня на карте</button>
-
-        <div class="legend">
-            <h3>Легенда</h3>
-            <div class="row"><span class="swatch ok"></span> Допустимые концентрации</div>
-            <div class="row"><span class="swatch warn"></span> Близкие к ПДК значения</div>
-            <div class="row"><span class="swatch pdq"></span> Значения на уровне ПДК</div>
-            <div class="row"><span class="swatch danger"></span> Превышение ПДК</div>
+        <!-- Тоггл -->
+        <div class="simulator-mode-block" id="mode-block">
+            <div class="mode-title" id="current-state-text">Текущее состояние</div>
+            <label class="big-green-toggle">
+                <input type="checkbox" id="simulator-mode">
+                <span class="big-slider"></span>
+            </label>
+            <div class="mode-subtitle" id="simulator-text">Режим симулятора</div>
         </div>
 
-        <button class="btn" id="toggle-heatmap-btn">Скрыть/Показать загрязнения</button>
-        <button class="btn">Обновить карту</button>
+        <!-- Авторизация -->
+        <div id="login-block" class="login-block" style="display:none;">
+
+            <div id="form-login" class="auth-form">
+                <h4 class="auth-title">Вход в систему</h4>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="login-email" placeholder="user@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="login-password" placeholder="••••••••">
+                </div>
+                <div id="login-error" class="auth-error" style="display:none;"></div>
+                <button type="button" id="login-submit-btn" class="btn-auth-primary">Войти</button>
+                <button type="button" id="go-register-btn" class="btn-auth-link">
+                    Нет аккаунта? Зарегистрироваться
+                </button>
+            </div>
+
+            <div id="form-register" class="auth-form" style="display:none;">
+                <h4 class="auth-title">Регистрация</h4>
+
+                <div class="form-group">
+                    <label>Имя <span class="required">*</span></label>
+                    <input type="text" id="reg-firstname" placeholder="Иван">
+                </div>
+                <div class="form-group">
+                    <label>Фамилия <span class="required">*</span></label>
+                    <input type="text" id="reg-lastname" placeholder="Иванов">
+                </div>
+                <div class="form-group">
+                    <label>Отчество <span class="optional">(необязательно)</span></label>
+                    <input type="text" id="reg-patronymic" placeholder="Иванович">
+                </div>
+                <div class="form-group">
+                    <label>Email <span class="required">*</span></label>
+                    <input type="email" id="reg-email" placeholder="user@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Пароль <span class="required">*</span></label>
+                    <input type="password" id="reg-password" placeholder="••••••••">
+                </div>
+                <div class="form-group">
+                    <label>Подтверждение пароля <span class="required">*</span></label>
+                    <input type="password" id="reg-password-confirm" placeholder="••••••••">
+                </div>
+
+                <!-- Роль -->
+                <div class="form-group">
+                    <label>Роль <span class="required">*</span></label>
+                    <select id="reg-role" class="role-select">
+                        <option value="student" selected>👨‍🎓 Студент</option>
+                        <option value="professor">👨‍🏫 Преподаватель</option>
+                    </select>
+                </div>
+
+                <!-- Группы -->
+                <div class="form-group" id="groups-block">
+                    <label id="groups-label">Группа(ы) <span class="required">*</span></label>
+                    <div id="groups-container">
+                        <div class="group-row">
+                            <input type="text" class="group-input" placeholder="например: ИБ-101">
+                        </div>
+                    </div>
+                    <button type="button" id="add-group-btn" class="btn-add-group"
+                            style="display:none;">
+                        ＋ Добавить группу
+                    </button>
+                </div>
+
+                <div id="register-error" class="auth-error" style="display:none;"></div>
+                <button type="button" id="register-submit-btn" class="btn-auth-primary">
+                    Зарегистрироваться
+                </button>
+                <button type="button" id="go-login-btn" class="btn-auth-link">
+                    Уже есть аккаунт? Войти
+                </button>
+            </div>
+        </div>
+
+        <!-- Кнопка выхода из аккаунта -->
+        <div id="logout-block" style="display:none;" class="logout-block">
+            <div id="user-info-label" class="user-info-label"></div>
+            <button type="button" id="logout-btn" class="btn-logout">
+                🚪 Выйти из аккаунта
+            </button>
+        </div>
+
+        <!-- Сценарии -->
+        <div class="scenarios-block" id="scenarios-block" style="display:none;">
+            <h3>Сценарии</h3>
+            <div class="scenario-buttons">
+                <button class="scenario-btn" id="btn-open">Открыть</button>
+                <button class="scenario-btn" id="btn-add">Добавить</button>
+                <button class="scenario-btn" id="btn-compare">Сравнить</button>
+            </div>
+            <div id="scenarios-dropdown" class="scenarios-dropdown" style="display:none;">
+                <div class="scenarios-dropdown-header">
+                    <span>Доступные сценарии</span>
+                    <button type="button" id="scenarios-dropdown-close"
+                            class="btn-close-dropdown">✕
+                    </button>
+                </div>
+                <div id="scenarios-list" class="scenarios-list-inner"></div>
+            </div>
+        </div>
+
+        <!-- Кнопка назад (внутри left-panel!) -->
+        <button id="back-to-scenarios-btn" class="back-to-scenarios-btn" style="display:none;">
+            ← К списку сценариев
+        </button>
+
+        <!-- Список источников -->
+        <div id="sources-list" class="sources-list" style="display:none;"></div>
+
     </aside>
 
-    <section class="card">
-        <div class="map-header">
-            <div class="map-meta">
-                Ветер: 1,9 м/с, В Давление: 764 мм рт. ст. Влажность: 61% Дальность видимости: 61 км Изотермия: не
-                наблюдается
-            </div>
-        </div>
-        <!-- Панель управления погодой -->
-        <div class="weather-controls"
-             style="padding: 10px; background: rgba(255,255,255,0.9); border-radius: 8px; margin-bottom: 10px; display: flex; gap: 10px; justify-content: center;">
-            <button id="toggleWind" class="btn"
-                    style="background: linear-gradient(180deg, #3498db, #2980b9); color: white; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer;">
-                Ветер: Вкл
-            </button>
-            <button id="togglePrecip" class="btn"
-                    style="background: linear-gradient(180deg, #27ae60, #229954); color: white; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer;">
-                Осадки: Вкл
-            </button>
-            <button id="updateWeather" class="btn"
-                    style="background: linear-gradient(180deg, #f39c12, #e67e22); color: white; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer;">
-                Обновить погоду
-            </button>
-        </div>
+    <section class="map-section">
+        <div id="map" class="map"></div>
 
-        <div id="map" class="map" data-map-role="monitoring"></div>
-
-        <div class="timeline-wrap">
-            <div class="time-ticks">
-                <span>09:30</span><span>09:40</span><span>09:50</span>
-                <span>10:00</span><span>10:10</span><span>10:20</span>
-                <span>Сейчас</span><span>10:40</span><span>10:50</span>
-                <span>11:00</span><span>11:10</span><span>11:20</span><span>11:30</span>
+        <!-- Правый оверлей -->
+        <div class="scenario-overlay" id="scenario-overlay" style="display:none;">
+            <div class="scenario-header">
+                <h3 id="scenario-name">—</h3>
             </div>
-            <div class="timeline">
-                <div class="handle">
-                    <div class="triangle"></div>
-                    <div class="dot"></div>
+
+            <!-- Секция 1: Источники -->
+            <div class="collapse-section" id="sources-section">
+                <div class="collapse-header">
+                    <span class="collapse-icon">▶</span>
+                    <span class="collapse-title">📌 Источники выбросов</span>
+                    <span class="collapse-badge" id="sources-count">0</span>
+                </div>
+                <div class="collapse-content" id="sources-content">
+                    <div class="source-form-container">
+                        <div class="form-group">
+                            <label>Название источника</label>
+                            <input type="text" id="overlay-source-name"
+                                   placeholder="например: Труба котельной">
+                        </div>
+                        <div class="form-group">
+                            <label>Тип источника</label>
+                            <div class="source-type-buttons">
+                                <button type="button" class="mini-btn source-type-btn active"
+                                        data-type="point">📍 Точечный
+                                </button>
+                                <button type="button" class="mini-btn source-type-btn"
+                                        data-type="line">📏 Линейный
+                                </button>
+                                <button type="button" class="mini-btn source-type-btn"
+                                        data-type="polygon">🗺️ Площадной
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Вещество</label>
+                            <select id="overlay-source-substance"></select>
+                        </div>
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label>Высота (м)</label>
+                                <input type="number" id="overlay-source-height"
+                                       value="40" step="5">
+                            </div>
+                            <div class="form-group">
+                                <label>Интенсивность (г/с)</label>
+                                <input type="number" id="overlay-source-emission"
+                                       value="3.7" step="0.5">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Категория</label>
+                            <select id="overlay-source-category">
+                                <option value="industrial" selected>🏭 Промышленный</option>
+                                <option value="domestic">🏠 Бытовой</option>
+                                <option value="transport">🚗 Транспортный</option>
+                            </select>
+                        </div>
+                        <div id="drawing-status-overlay" style="display:none;"
+                             class="drawing-status">
+                            ⚡ <span id="drawing-status-text-overlay">Кликните на карте</span>
+                        </div>
+                        <div class="form-buttons">
+                            <button class="btn-draw" id="start-drawing-overlay-btn">
+                                🎨 Рисовать на карте
+                            </button>
+                            <button class="btn-cancel" id="cancel-drawing-overlay-btn"
+                                    style="display:none;">❌ Отмена
+                            </button>
+                        </div>
+                    </div>
+                    <div class="sources-list-overlay">
+                        <div class="sources-header">Список источников</div>
+                        <div id="overlay-sources-container"></div>
+                    </div>
                 </div>
             </div>
+
+            <!-- Секция 2: Погода -->
+            <div class="collapse-section">
+                <div class="collapse-header">
+                    <span class="collapse-icon">▶</span>
+                    <span class="collapse-title">🌤️ Погодные условия</span>
+                </div>
+                <div class="collapse-content">
+                    <div class="weather-controls">
+                        <div class="form-group">
+                            <label>Скорость ветра (м/с)</label>
+                            <input type="range" id="wind-speed" min="0" max="15"
+                                   step="0.5" value="3">
+                            <span id="wind-speed-value">3.0</span>
+                        </div>
+                        <div class="form-group">
+                            <label>Температура (°C)</label>
+                            <input type="range" id="temperature" min="-30" max="40"
+                                   step="1" value="20">
+                            <span id="temperature-value">20</span>
+                        </div>
+                        <div class="form-group">
+                            <label>Давление (гПа)</label>
+                            <input type="range" id="pressure" min="950" max="1050"
+                                   step="1" value="1013">
+                            <span id="pressure-value">1013</span>
+                        </div>
+                        <!-- Вот эти блоки теперь отдельные -->
+                        <div class="form-group">
+                            <label>Яркость солнца (люксы)</label>
+                            <input type="range" id="sun-brightness" min="0" max="120000" step="500" value="20000">
+                            <span id="sun-brightness-value">20000</span>
+                        </div>
+                        <div class="form-group">
+                            <label>Облачность (окты, 0–8)</label>
+                            <input type="range" id="cloud-density" min="0" max="8" step="1" value="0">
+                            <span id="cloud-density-value">0</span>
+                        </div>
+                        <!-- конец новых блоков -->
+                        <div class="form-group">
+                            <label>Направление ветра</label>
+                            <select id="wind-direction">
+                                <option value="0">С (0°)</option>
+                                <option value="45">СВ (45°)</option>
+                                <option value="90">В (90°)</option>
+                                <option value="135">ЮВ (135°)</option>
+                                <option value="180" selected>Ю (180°)</option>
+                                <option value="225">ЮЗ (225°)</option>
+                                <option value="270">З (270°)</option>
+                                <option value="315">СЗ (315°)</option>
+                            </select>
+                            <div class="compass">
+                                <div class="compass-arrow" id="compass-arrow">↑</div>
+                            </div>
+                        </div>
+                        <button id="apply-weather-btn" class="apply-btn">
+                            Применить и пересчитать
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Секция 3: Параметры модели -->
+            <div class="collapse-section">
+                <div class="collapse-header">
+                    <span class="collapse-icon">▶</span>
+                    <span class="collapse-title">🧮 Параметры модели</span>
+                </div>
+                <div class="collapse-content">
+                    <div class="model-controls">
+                        <div class="form-group">
+                            <label>Модель рассеивания</label>
+                            <select id="dispersion-model">
+                                <option value="gaussian">Гауссова (стандарт)</option>
+                                <option value="lagrangian">Лагранжева</option>
+                                <option value="eulerian">Эйлерова</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Разрешение сетки (м)</label>
+                            <input type="number" id="grid-resolution" value="100" step="10">
+                        </div>
+                        <div class="form-group">
+                            <label>Шаг по времени (с)</label>
+                            <input type="number" id="time-step" value="60" step="10">
+                        </div>
+                        <div class="form-group">
+                            <label>Радиус расчёта (км)</label>
+                            <input type="range" id="calc-radius" min="1" max="50"
+                                   value="10" step="1">
+                            <span id="calc-radius-value">10</span>
+                        </div>
+                        <div class="checkbox-group">
+                            <label>
+                                <input type="checkbox" id="dry-deposition"> Сухая депозиция
+                            </label>
+                            <label>
+                                <input type="checkbox" id="wet-deposition"> Влажная депозиция
+                            </label>
+                        </div>
+                        <button class="run-simulation-btn" id="run-simulation-btn">
+                            🚀 Запустить расчёт
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Таймлайн -->
+        <div class="timeline-block">
+            <div class="time-ticks">
+                <span>14:00</span><span>14:30</span><span>15:00</span><span>15:30</span>
+                <span>16:00</span><span>16:30</span><span>17:00</span><span>17:30</span>
+                <span>18:00</span><span>18:30</span>
+            </div>
+            <div class="timeline-slider">
+                <input type="range" id="time-slider" min="0" max="9" value="5" step="1">
+            </div>
+            <div class="current-time" id="current-time-display">16:30</div>
         </div>
     </section>
 </main>
 
-<div id="confirm-modal" class="modal"
-     style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
-    <div class="modal-content"
-         style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 300px; border-radius: 8px; text-align: center;">
-        <div class="modal-header">
-            <h3 class="modal-title">Удаление источника</h3>
-        </div>
-        <p>Вы уверены, что хотите удалить этот источник?</p>
-        <div class="modal-footer" style="margin-top: 20px; display: flex; justify-content: space-around;">
-            <button class="modal-btn" id="cancel-delete"
-                    style="background: #95a5a6; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">
-                Отмена
-            </button>
-            <button class="modal-btn" id="confirm-delete"
-                    style="background: #e74c3c; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">
-                Удалить
-            </button>
-        </div>
-    </div>
-</div>
 </body>
 </html>

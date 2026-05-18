@@ -3,6 +3,7 @@ from ..models.substances import Substances
 from ..schemas.substance import SubstanceCreate
 from sqlalchemy import select, Sequence
 
+
 class SubstancesRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
@@ -17,7 +18,7 @@ class SubstancesRepository:
         result = await self.db.execute(stmt)
         return result.scalars().first()
 
-    async def add_substance(self, substance_schema:SubstanceCreate) -> Substances:
+    async def add_substance(self, substance_schema: SubstanceCreate) -> Substances:
         substance_data = substance_schema.model_dump()
         substance = Substances(**substance_data)
         self.db.add(substance)

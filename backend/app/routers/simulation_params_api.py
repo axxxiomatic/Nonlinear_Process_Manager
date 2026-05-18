@@ -6,6 +6,7 @@ from ..schemas.simulation_params import SimulationParamsResponse, SimulationPara
 
 router = APIRouter(tags=['simulation_params'], prefix="/api/simulation_params")
 
+
 @router.get("/")
 async def get_params(db: AsyncSession = Depends(get_db)):
     params_service = SimulationParamsService(db)
@@ -16,10 +17,7 @@ async def get_params(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def create_params(new_params: SimulationParamsCreate,db: AsyncSession = Depends(get_db)):
+async def create_params(new_params: SimulationParamsCreate, db: AsyncSession = Depends(get_db)):
     params_service = SimulationParamsService(db)
 
     await params_service.create_simulation_params(new_params)
-
-
-

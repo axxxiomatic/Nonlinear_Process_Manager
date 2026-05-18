@@ -1,27 +1,9 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from .routers import pages, sources_api, simulation_params_api, layout, substances_api
+from .routers import pages, sources_api, simulation_params_api, layout, substances_api, users, auth, scenarios
 from .core.config import STATIC_DIR
-from .database import init_models
-from contextlib import asynccontextmanager
-from . import models
 
-"""
-    как только будет Alembic - удалить init_model
-    заменить app = FastAPI(lifespan=lifespan) на app = FastAPI()
-"""
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    print("Пересоздание таблиц в БД...")
-    await init_models()
-    print("Таблицы готовы.")
-    yield
-    print("Завершение работы...")
-
-
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
@@ -30,3 +12,6 @@ app.include_router(sources_api.router)
 app.include_router(simulation_params_api.router)
 app.include_router(layout.router)
 app.include_router(substances_api.router)
+app.include_router(users.router)
+app.include_router(auth.router)
+app.include_router(scenarios.router)

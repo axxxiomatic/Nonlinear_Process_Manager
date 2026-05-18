@@ -13,7 +13,7 @@ class SourcesRepository:
         result = await self.db.execute(stmt)
         return result.scalars().all()
 
-    async def get_sources_by_substance(self, substance_id: id) -> Sequence[Sources]:
+    async def get_sources_by_substance(self, substance_id: int) -> Sequence[Sources]:
         stmt = select(Sources).where(Sources.substance_id == substance_id)
 
         result = await self.db.execute(stmt)
@@ -42,3 +42,18 @@ class SourcesRepository:
         await self.db.commit()
 
         return True
+
+    async def get_sources_by_scenario_id(self, scenario_id: int) -> Sequence[Sources]:
+        stmt = select(Sources).where(Sources.scenario_id == scenario_id)
+        result = await self.db.execute(stmt)
+        return result.scalars().all()
+
+    async def get_source_by_id(self, source_id: int) -> Sources | None:
+        stmt = select(Sources).where(Sources.id == source_id)
+        result = await self.db.execute(stmt)
+        return result.scalars().first()
+
+    async def get_sources_by_substance_internal(self, substance_id: int) -> Sequence[Sources]:
+        stmt = select(Sources).where(Sources.substance_id == substance_id)
+        result = await self.db.execute(stmt)
+        return result.scalars().all()

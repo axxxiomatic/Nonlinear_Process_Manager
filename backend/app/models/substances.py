@@ -1,15 +1,23 @@
-from sqlalchemy import Column, Integer, String, SmallInteger, Float
-from ..database import Base
+from sqlalchemy import String, SmallInteger, Float
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from typing import TYPE_CHECKING
+from .base import Base
+
+if TYPE_CHECKING:
+    from .sources import Sources
 
 
 class Substances(Base):
     __tablename__ = "substances"
 
-    id = Column(SmallInteger, nullable=False, primary_key=True, index=True)
-    name = Column(String, nullable=False, unique=True, index=True)
-    short_name = Column(String, nullable=False, unique=True, index=True)
-    mcl = Column(Float, nullable=False)  # MCL = ПДК
-    density = Column(Float, nullable=False)
-    settling_velocity = Column(Float, nullable=False)  # скорость оседания
+    id: Mapped[int] = mapped_column(SmallInteger, index=True, primary_key=True)
+    name: Mapped[str] = mapped_column(String, nullable=False, unique=True, index=True)
+    short_name: Mapped[str] = mapped_column(String, nullable=False, unique=True, index=True)
+    mcl: Mapped[float] = mapped_column(Float, nullable=False)  # MCL = ПДК
+    density: Mapped[float] = mapped_column(Float, nullable=False)
+    settling_velocity: Mapped[float] = mapped_column(Float, nullable=False)  # скорость оседания
     # hazard_level = Column(Integer, nullable=False) - может понадобиться если будем пилить справочную информацию
     # custom_color=Column(String, default="#E74C3C")-если захочется шлейф задавать кастомным цветом для каждого вещества
+
+
+    source: Mapped[list["Sources"]] = relationship(back_populates="substance")
