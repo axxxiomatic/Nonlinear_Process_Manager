@@ -136,8 +136,6 @@ class LayoutService:
             wind_direction: float = 180.0,
             temperature: float = 20.0,  # °C
             pressure: float = 1013.0,  # гПа
-
-            # Вот твои параметры, Илюха, если нужно будет их как-то обрабатывать, то лучше приватными методами выше
             sun_brightness: float = 20000,
             cloud_density: int = 0
     ) -> Image.Image:
@@ -190,7 +188,7 @@ class LayoutService:
             xv.ravel(), yv.ravel(),
             s_xs, s_ys, s_rates, s_heights_eff,
             s_sy0_eff, s_sz0_eff, s_settling_eff,
-            u, wind_math_rad
+            u, wind_math_rad, sun_brightness, cloud_density
         )
 
         grid_conc = conc_flat.reshape((res, res))
